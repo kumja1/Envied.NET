@@ -1,2 +1,2 @@
 # Envied.NET
-C# equivalent of the dart library envied 
+C# port of the dart library envied
