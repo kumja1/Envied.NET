@@ -1,17 +1,17 @@
 namespace Envied;
 
-[AttributeUsage(AttributeTargets.Class)]
-public class Envied(
+[AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
+public class EnviedAttribute(
     string path = ".env",
-    bool requireEnvFile = false,
-    string name = null,
+    bool requireEnvFile = true,
+    string name = "",
     bool obfuscate = false,
     bool allowOptionalFields = false,
     bool useConstantCase = false,
     bool environment = false,
     bool interpolate = true,
     bool rawStrings = false,
-    int? randomSeed = null) : Attribute
+    int randomSeed = 0) : Attribute
 {
     /// <summary>
     /// The file path of the `.env` file, relative to the project root, which
@@ -24,15 +24,14 @@ public class Envied(
     /// <summary>
     /// Whether to require a env file exists, or else the build_runner will fail if the file does not exits
     /// </summary>
-    public bool RequireEnvFile { get; set; } = requireEnvFile;
+    public bool RequireEnvFile { get; } = requireEnvFile;
 
     /// <summary>
-    /// The value to use as name for the generated class, with
-    /// an underscore `_` prefixed.
+    /// The value to use as name for the generated class
     ///
     /// If `null` or an empty [String], the name of the annotated class is used.
     /// </summary>
-    public string Name { get; set; } = name;
+    public string Name { get; } = name;
 
     /// <summary>
     /// Allows all the values to be encrypted using a random
@@ -42,7 +41,7 @@ public class Envied(
     /// the `const` qualifier, but only with `final`.
     /// **Can be overridden by the per-field obfuscate option!**
     /// </summary>
-    public bool Obfuscate { get; set; } = obfuscate;
+    public bool Obfuscate { get; } = obfuscate;
 
     /// <summary>
     /// Allows all the values to be optional when the type is nullable.
@@ -51,7 +50,7 @@ public class Envied(
     /// if the environment variable is missing and a default value was
     /// not set.
     /// </summary>
-    public bool AllowOptionalFields { get; set; } = allowOptionalFields;
+    public bool AllowOptionalFields { get; } = allowOptionalFields;
 
     /// <summary>
     /// Whether to convert field names from camelCase to CONSTANT_CASE when
@@ -60,7 +59,7 @@ public class Envied(
     /// By default, this is set to `false`, which means field names will
     /// retain their original camelCase format unless varName is specified.
     /// </summary>
-    public bool UseConstantCase { get; set; } = useConstantCase;
+    public bool UseConstantCase { get; } = useConstantCase;
 
     /// <summary>
     /// Whether to read the ultimate values from [Platform.environment] rather
@@ -69,14 +68,14 @@ public class Envied(
     /// used as the key and the ultimate value will be read from
     /// [Platform.environment].
     /// </summary>
-    public bool Environment { get; set; } = environment;
+    public bool Environment { get; } = environment;
 
     /// <summary>
     /// Whether to interpolate the values for all fields.
     /// If [interpolate] is `true`, the value will be interpolated
     /// with the environment variables.
     /// </summary>
-    public bool Interpolate { get; set; } = interpolate;
+    public bool Interpolate { get; } = interpolate;
 
     /// <summary>
     /// Whether to use the raw string format for all string values.
@@ -87,12 +86,12 @@ public class Envied(
     /// and the value may not contain a single quote.
     /// Escapes single quotes and newlines in the value.
     /// </summary>
-    public bool RawStrings { get; set; } = rawStrings;
+    public bool RawStrings { get; } = rawStrings;
 
     /// <summary>
     /// A seed can be provided if the obfuscation randomness needs to remain
     /// reproducible across builds.
     /// **Note**: This will make the `Random` instance non-secure!
     /// </summary>
-    public int? RandomSeed { get; set; } = randomSeed;
+    public int RandomSeed { get; } = randomSeed;
 }
