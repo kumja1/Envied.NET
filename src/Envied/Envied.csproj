@@ -7,14 +7,14 @@
     <LangVersion>latest</LangVersion>
 
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.0</Version>
+    <Version>1.0.4</Version>
     <Authors>kumja1</Authors>
     <Description>C# port of dart/flutter library Envied</Description>
     
     <PackageId>Envied.NET</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>envied;configuration;environment</PackageTags>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseExpression></PackageLicenseExpression>
     <PackageReleaseNotes>Initial release</PackageReleaseNotes>
      
     <ProjectUrl>https://github.com/kumja1/Envied.NET</ProjectUrl>
@@ -24,14 +24,15 @@
     <Copyright>Copyright © 2025 kumja1</Copyright>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Envied.Common\Envied.Common.csproj" />
-  </ItemGroup>
+<ItemGroup>
+  <ProjectReference Include="..\Envied.Common\Envied.Common.csproj" PrivateAssets="all" Pack="true"/>
+</ItemGroup>
 
   <ItemGroup>
-   <None Update="README.md">
-      <Pack>true</Pack>
-      <PackagePath></PackagePath>
-   </None>
+   <None Update="README.md"  Pack="true" PackagePath=""/>
   </ItemGroup>
+
+<ItemGroup>
+  <None Include="..\Envied.Common\bin\Release\netstandard2.0\Envied.Common.dll" Pack="true" PackagePath="lib/netstandard2.0" />
+</ItemGroup>
 </Project>
