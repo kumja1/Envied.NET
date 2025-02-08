@@ -4,11 +4,77 @@
     "/workspaces/Envied.NET/src/Envied/Envied.csproj": {}
   },
   "projects": {
+    "/workspaces/Envied.NET/src/Envied.Common/Envied.Common.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/workspaces/Envied.NET/src/Envied.Common/Envied.Common.csproj",
+        "projectName": "Envied.Common",
+        "projectPath": "/workspaces/Envied.NET/src/Envied.Common/Envied.Common.csproj",
+        "packagesPath": "/home/codespace/.nuget/packages/",
+        "outputPath": "/workspaces/Envied.NET/src/Envied.Common/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/codespace/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.0": {
+            "targetAlias": "netstandard2.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "netstandard2.0": {
+          "targetAlias": "netstandard2.0",
+          "dependencies": {
+            "NETStandard.Library": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.3, )",
+              "autoReferenced": true
+            },
+            "System.Memory": {
+              "target": "Package",
+              "version": "[4.6.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.101/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
     "/workspaces/Envied.NET/src/Envied/Envied.csproj": {
       "version": "1.0.0",
       "restore": {
         "projectUniqueName": "/workspaces/Envied.NET/src/Envied/Envied.csproj",
-        "projectName": "Envied",
+        "projectName": "Envied.NET",
         "projectPath": "/workspaces/Envied.NET/src/Envied/Envied.csproj",
         "packagesPath": "/home/codespace/.nuget/packages/",
         "outputPath": "/workspaces/Envied.NET/src/Envied/obj/",
@@ -25,7 +91,11 @@
         "frameworks": {
           "netstandard2.0": {
             "targetAlias": "netstandard2.0",
-            "projectReferences": {}
+            "projectReferences": {
+              "/workspaces/Envied.NET/src/Envied.Common/Envied.Common.csproj": {
+                "projectPath": "/workspaces/Envied.NET/src/Envied.Common/Envied.Common.csproj"
+              }
+            }
           }
         },
         "warningProperties": {

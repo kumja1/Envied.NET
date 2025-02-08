@@ -3,8 +3,35 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild> <!-- Generates a package at build -->
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
+
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Version>1.0.0</Version>
+    <Authors>kumja1</Authors>
+    <Description>C# port of dart/flutter library Envied</Description>
+    
+    <PackageId>Envied.NET</PackageId>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>envied;configuration;environment</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+     
+    <ProjectUrl>https://github.com/kumja1/Envied.NET</ProjectUrl>
+    <RepositoryUrl>https://github.com/kumja1/Envied.NET</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <Copyright>Copyright © 2025 kumja1</Copyright>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Envied.Common\Envied.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+   <None Update="README.md">
+      <Pack>true</Pack>
+      <PackagePath></PackagePath>
+   </None>
+  </ItemGroup>
 </Project>

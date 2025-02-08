@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/src/Envied.Tests/Envied.Tests.csproj",
+                "${workspaceFolder}/examples/dotnet9/dotnet9.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary;ForceNoAlign"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/src/Envied.Tests/Envied.Tests.csproj",
+                "${workspaceFolder}/examples/dotnet9/dotnet9.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary;ForceNoAlign"
             ],
@@ -33,7 +33,7 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/src/Envied.Tests/Envied.Tests.csproj"
+                "${workspaceFolder}/examples/dotnet9/dotnet9.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

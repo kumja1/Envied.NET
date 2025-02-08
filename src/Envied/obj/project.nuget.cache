@@ -1,11 +1,15 @@
 {
   "version": 2,
-  "dgSpecHash": "8ArNL5gCBGw=",
+  "dgSpecHash": "203MkOeVrqQ=",
   "success": true,
   "projectFilePath": "/workspaces/Envied.NET/src/Envied/Envied.csproj",
   "expectedPackageFiles": [
     "/home/codespace/.nuget/packages/microsoft.netcore.platforms/1.1.0/microsoft.netcore.platforms.1.1.0.nupkg.sha512",
-    "/home/codespace/.nuget/packages/netstandard.library/2.0.3/netstandard.library.2.0.3.nupkg.sha512"
+    "/home/codespace/.nuget/packages/netstandard.library/2.0.3/netstandard.library.2.0.3.nupkg.sha512",
+    "/home/codespace/.nuget/packages/system.buffers/4.6.0/system.buffers.4.6.0.nupkg.sha512",
+    "/home/codespace/.nuget/packages/system.memory/4.6.0/system.memory.4.6.0.nupkg.sha512",
+    "/home/codespace/.nuget/packages/system.numerics.vectors/4.6.0/system.numerics.vectors.4.6.0.nupkg.sha512",
+    "/home/codespace/.nuget/packages/system.runtime.compilerservices.unsafe/6.1.0/system.runtime.compilerservices.unsafe.6.1.0.nupkg.sha512"
   ],
   "logs": []
 }

@@ -1,4 +1,4 @@
 bin
 obj
 *.sln
-Log.cs
+DebugLog.cs
