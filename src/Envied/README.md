@@ -1,7 +1,7 @@
 # Envied.NET
 
 [![NuGet](https://img.shields.io/nuget/v/Envied.NET.svg)](https://www.nuget.org/packages/Envied.NET)
-[![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/github/license/kumja1/Envied.NET)](https://opensource.org/licenses/MIT)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/Envied.NET.svg)](https://www.nuget.org/stats/packages/Envied.NET?groupby=Version)
 
 A cleaner way to handle your environment variables in C#.
