@@ -25,7 +25,8 @@ A cleaner way to handle your environment variables in C#.
 Using an `.env` file such as:
 
 ```
-.env
+# .env
+
 KEY=VALUE
 ```
 
@@ -191,14 +192,15 @@ public static partial readonly string ApiKey { get; }
 [EnviedField(varName: "API_KEY")]
 public static readonly string ApiKey => Env_Generated.ApiKey;
 ```
-
 ### Using System Environment Variables
 
-Use the `UseEnvironment` option to read values directly from system environment variables:
+Using the `environment` option in either an `Envied` or `EnviedField` instructs the generator to use the value from the `.env` file as the key for a system environment variable read from `Platform.environment`.
+
+For example, let's use the `Envied` class and the following `.env` files:
 
 ```csharp
-// .NET 9 and up 
-[Envied(useEnvironment:true)]
+// .NET 9 and up
+[Envied(environment: true)]
 public static partial class Env
 {
     [EnviedField(varName: "API_KEY")]
@@ -206,7 +208,7 @@ public static partial class Env
 }
 
 // .NET 8 and older
-[Envied(useEnvironment:true)]
+[Envied(environment: true)]
 public static class Env
 {
     [EnviedField(varName: "API_KEY")]
@@ -214,7 +216,39 @@ public static class Env
 }
 ```
 
-This ensures environment variables are correctly loaded based on the selected configuration.
+... or ...
+
+```csharp
+// .NET 9 and up
+[Envied]
+public static partial class Env
+{
+    [EnviedField(environment: true, varName: "API_KEY")]
+    public static partial readonly string ApiKey { get; }
+}
+
+// .NET 8 and older
+[Envied]
+public static class Env
+{
+    [EnviedField(environment: true, varName: "API_KEY")]
+    public static readonly string ApiKey => Env_Generated.ApiKey;
+}
+```
+
+`.env.latest`
+
+```
+API_KEY=LATEST_API_KEY
+```
+
+`.env.stage`
+
+```
+API_KEY=STAGE_API_KEY
+```
+
+Depending on which `.env` file you use to generate, the `API_KEY` can be read from either `Enviroment.GetEnvironmentVariable('LATEST_API_KEY')` or `Enviroment.GetEnvironmentVariable('STAGE_API_KEY')`. This allows for the `.env` files to be safely checked into source control, the specific values to be set at build time, and keeps the secrets safely stored in the host environment.
 
 ## Examples
 More examples can be found [here](https://github.com/kumja1/Envied.NET/tree/master/examples)
