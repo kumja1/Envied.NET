@@ -30,7 +30,7 @@ public static partial class ExampleClass
     [EnviedField(defaultValue: true)]
     public static partial bool DEFAULT_VALUE_Field { get; }
 
-    [EnviedField(obfuscate: true)]
+    [EnviedField(rawString: true)]
     public static partial string RAW_STRING_FIELD { get; }
 
     [EnviedField(interpolate: true)]

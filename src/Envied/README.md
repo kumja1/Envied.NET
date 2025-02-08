@@ -1,22 +1,12 @@
-<div align="center">
-    <h1>Envied.NET</h1>
-</div>
+# Envied.NET
 
-<div align="center">
-<a href="https://www.nuget.org/packages/Envied.NET"><img src="https://img.shields.io/nuget/v/Envied.NET.svg" alt="NuGet"></a>
-<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-purple.svg" alt="License: MIT"></a>
-</div>
-
-<div align="center">
-  <a href="https://www.nuget.org/packages/Envied.NET"><img src="https://img.shields.io/nuget/dt/Envied.NET.svg" alt="NuGet Downloads"></a>
-</div>
-
-<div align="center">
+[![NuGet](https://img.shields.io/nuget/v/Envied.NET.svg)](https://www.nuget.org/packages/Envied.NET)
+[![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/Envied.NET.svg)](https://www.nuget.org/stats/packages/Envied.NET?groupby=Version)
 
 A cleaner way to handle your environment variables in C#.
 
-(C# port of the dart/flutter library [Envied](https://pub.dev/packages/envied) )
-</div>
+(C# port of the Dart/Flutter library [Envied](https://pub.dev/packages/envied))
 
 ## Table of Contents
 
