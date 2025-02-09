@@ -80,7 +80,7 @@ dotnet add package Envied.NET.SourceGenerator
 Add a `.env` file at the root of the project. The name of this file can be specified in your `Envied` attribute if you call it something else such as `.env.dev`.
 
 ```
-# .env
+# .env.dev
 
 KEY1=VALUE1
 KEY2=VALUE2
@@ -91,6 +91,7 @@ Create a class to ingest the environment variables:
 ```csharp
 using Envied;
 
+// .NET 9 and up
 [Envied(path: ".env.dev")]
 public static partial class Env
 {
@@ -99,6 +100,18 @@ public static partial class Env
 
     [EnviedField(varName: "KEY2")]
     public static partial readonly string Key2 { get; }
+}
+
+
+// .NET 8 and older
+[Envied(path: ".env.dev")]
+public static class Env
+{
+    [EnviedField(varName: "KEY1")]
+    public static readonly string Key1 => Env_Generated.Key1;
+
+    [EnviedField(varName: "KEY2")]
+    public static readonly string Key2 => Env_Generated.Key2;
 }
 ```
 Then, generate the required code by running:
