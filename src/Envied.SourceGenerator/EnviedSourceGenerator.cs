@@ -4,13 +4,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 using dotenv.net;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Text;
 using Envied.SourceGenerator.Utils;
 using TypeInfo = Microsoft.CodeAnalysis.TypeInfo;
+using Envied.SourceGenerator.Models;
 
 namespace Envied.SourceGenerator;
 
@@ -28,63 +28,65 @@ public class EnviedSourceGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var syntaxProvider = context.SyntaxProvider.ForAttributeWithMetadataName("Envied.EnviedAttribute",
-                predicate: static (node, _) => node is ClassDeclarationSyntax,
-                transform: static (context, _) => (Class: (ClassDeclarationSyntax)context.TargetNode, context.SemanticModel))
-                .Combine(context.AnalyzerConfigOptionsProvider)
-            .Where(tuple => tuple.Left.Class != null);
+        var analyzerConfigOptionsProvider = context.AnalyzerConfigOptionsProvider.Select((config, _) => (IsOlderVersion: IsOlderFramework(config), ProjectRoot: config.GlobalOptions.TryGetValue("build_property.projectdir", out var projectRoot) ? projectRoot : string.Empty));
+        var compilationProvider = context.CompilationProvider.Select((compilation, _) => compilation.Assembly);
 
-        context.RegisterSourceOutput(syntaxProvider, (context, t) => GenerateClass(context, (t.Left.Class, t.Left.SemanticModel, t.Right)));
+        var syntaxProvider = context.SyntaxProvider
+            .ForAttributeWithMetadataName("Envied.EnviedAttribute",
+            predicate: static (node, _) => node is ClassDeclarationSyntax,
+            transform: static (context, _) => ClassInfo.From((ClassDeclarationSyntax)context.TargetNode, (INamedTypeSymbol)context.TargetSymbol))
+            .Combine(analyzerConfigOptionsProvider)
+            .Combine(compilationProvider)
+            .Select((tuple, _) => (Class: tuple.Left.Left, IsOlder: tuple.Left.Right, AssemblyKey: new ValueEquatableArray<byte>(GeneratorHelper.DeriveKey(tuple.Right))));
+
+        context.RegisterSourceOutput(syntaxProvider, GenerateClass);
     }
 
-    private void GenerateClass(SourceProductionContext context, (ClassDeclarationSyntax Class, SemanticModel SemanticModel, AnalyzerConfigOptionsProvider AnalyzerConfig) tuple)
+    private void GenerateClass(SourceProductionContext context, (ClassInfo Class, bool IsOlder, ValueEquatableArray<byte> AssemblyKey) tuple)
     {
-        var (@class, semanticModel, analyzerConfig) = tuple;
+        var (@class, isOlder, key) = tuple;
 
-        bool isOlder = IsOlderFramework(analyzerConfig);
-        if (!@class.Modifiers.Any(SyntaxKind.StaticKeyword) || (!isOlder && !@class.Modifiers.Any(SyntaxKind.PartialKeyword)))
+        if (!@class.Modifiers.Contains("static") || (!isOlder && !@class.Modifiers.Contains("partial")))
         {
             string partial = isOlder ? string.Empty : " Partial";
-            ReportDiagnostic(context, "ENV004", $"Class Must Be{partial} and Static", $"The class '{@class.Identifier.Text}' must be declared{partial.ToLower()} and static.", @class.GetLocation());
+            ReportDiagnostic(context, "ENV004", $"Class Must Be{partial} and Static", $"The class '{@class.Name}' must be declared{partial.ToLower()} and static.", @class.GetLocation());
             return;
         }
 
-        var namespaceName = @class.Ancestors().OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault()?.Name.ToString();
-        var attributeSyntax = @class.AttributeLists.SelectMany(al => al.Attributes).FirstOrDefault(attr => attr.Name.ToString() == "Envied");
+        var attribute = @class.Attributes.FirstOrDefault(attr => attr.Name == "EnviedAttribute");
 
         var config = new EnviedConfig(
-            path: GetAttributeArgument<string>(attributeSyntax, "path") ?? ".env",
-            requireEnvFile: GetAttributeArgument<bool>(attributeSyntax, "requireEnvFile"),
-            name: GetAttributeArgument<string>(attributeSyntax, "name"),
-            obfuscate: GetAttributeArgument<bool>(attributeSyntax, "obfuscate"),
-            allowOptionalFields: GetAttributeArgument<bool>(attributeSyntax, "allowOptionalFields"),
-            useConstantCase: GetAttributeArgument<bool>(attributeSyntax, "useConstantCase"),
-            interpolate: GetAttributeArgument<bool>(attributeSyntax, "interpolate"),
-            rawStrings: GetAttributeArgument<bool>(attributeSyntax, "rawStrings"),
-            environment: GetAttributeArgument<bool>(attributeSyntax, "environment"),
-            randomSeed: GetAttributeArgument<int>(attributeSyntax, "randomSeed")
+            Path: GetAttributeArgument<string>(attribute, "path") ?? ".env",
+            RequireEnvFile: GetAttributeArgument<bool>(attribute, "requireEnvFile"),
+            Name: GetAttributeArgument<string>(attribute, "name"),
+            Obfuscate: GetAttributeArgument<bool>(attribute, "obfuscate"),
+            AllowOptionalFields: GetAttributeArgument<bool>(attribute, "allowOptionalFields"),
+            UseConstantCase: GetAttributeArgument<bool>(attribute, "useConstantCase"),
+            Interpolate: GetAttributeArgument<bool>(attribute, "interpolate"),
+            RawStrings: GetAttributeArgument<bool>(attribute, "rawStrings"),
+            Environment: GetAttributeArgument<bool>(attribute, "environment"),
+            RandomSeed: GetAttributeArgument<int>(attribute, "randomSeed")
         );
 
         var env = LoadEnvironment(config, analyzerConfig, context, @class.GetLocation());
         if (env == null && config.RequireEnvFile)
             return;
 
-        var fieldsSource = GenerateFields(@class, isOlder, config, semanticModel, env, context);
+        var fieldsSource = GenerateFields(@class, isOlder, config, env, context);
         var sb = new StringBuilder($"""
 using Envied.Utils;
 using System.Reflection;
 
-namespace {namespaceName};  
+namespace {@class.Namespace};  
  
 """
 );
-        sb.AppendLine(isOlder ? @$"public static class {@class.Identifier.Text}_Generated " : @$"public static partial class {@class.Identifier.Text} ");
+        sb.AppendLine(isOlder ? @$"public static class {@class.Name}_Generated " : @$"public static partial class {@class.Name} ");
         sb.AppendLine(@$"{{
             {fieldsSource}
             }}");
-        
-       // DebugLog.Flush(context);
-        context.AddSource($"{@class.Identifier.Text}.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
+
+        context.AddSource($"{@class.Name}.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
     }
 
     private static bool IsOlderFramework(AnalyzerConfigOptionsProvider analyzerConfig)
@@ -92,35 +94,29 @@ namespace {namespaceName};
         if (analyzerConfig.GlobalOptions.TryGetValue("build_property.TargetFramework", out var targetFramework))
         {
             if (targetFramework.StartsWith("netstandard") && Version.TryParse(targetFramework.Replace("netstandard", ""), out var parsedVersion))
-            {
                 return parsedVersion < new Version(2, 1);
-            }
             else if ((targetFramework.StartsWith("net") || targetFramework.StartsWith("netcoreapp")) && Version.TryParse(targetFramework.Replace("net", "").Replace("coreapp", ""), out var netParsedVersion))
-            {
                 return netParsedVersion < new Version(9, 0);
-            }
         }
         return true;
     }
 
     private static string GenerateFields(
-        ClassDeclarationSyntax @class,
+        ClassInfo @class,
         bool isOlder,
         EnviedConfig config,
-        SemanticModel semanticModel,
         IDictionary<string, string> env,
         SourceProductionContext context)
     {
         var fieldsSource = new StringBuilder();
-        var key = GeneratorHelper.DeriveKey(semanticModel.Compilation.Assembly);
         int obfuscatedFields = 0;
 
         foreach (var member in @class.Members)
         {
-            if (member is not PropertyDeclarationSyntax property) continue;
-            var fieldSource = GenerateField(property, isOlder, config, semanticModel, env, context, key, ref obfuscatedFields);
+            var fieldSource = GenerateField(member, isOlder, config, env, context, key, ref obfuscatedFields);
 
             if (string.IsNullOrEmpty(fieldSource)) continue;
+
             fieldsSource.AppendLine(fieldSource);
         }
 
@@ -131,36 +127,28 @@ namespace {namespaceName};
     }
 
     private static string GenerateField(
-        PropertyDeclarationSyntax property,
+        FieldInfo field,
         bool isOlder,
         EnviedConfig config,
-        SemanticModel semanticModel,
         IDictionary<string, string> env,
         SourceProductionContext context,
         byte[] key,
         ref int obfuscateFields)
     {
-        if (!property.Modifiers.Any(SyntaxKind.StaticKeyword) || (!isOlder && !property.Modifiers.Any(SyntaxKind.PartialKeyword)))
+        if (!field.Modifiers.Contains("static") || (!isOlder && !field.Modifiers.Contains("partial")))
         {
-            ReportDiagnostic(context, "ENV007", "Field Must Be Static", $"The field '{property.Identifier.Text}' must be declared static. Skipping {property.Identifier.Text}", property.GetLocation(), DiagnosticSeverity.Warning);
+            ReportDiagnostic(context, "ENV007", "Field Must Be Static", $"The field '{field.Name}' must be declared static. Skipping {field.Name}", field.GetLocation(), DiagnosticSeverity.Warning);
             return string.Empty;
         }
 
-        AttributeSyntax enviedFieldAttribute = property.AttributeLists
-             .SelectMany(attrList => attrList.Attributes)
-             .FirstOrDefault(attr => attr.Name.ToString() == "EnviedField");
+        var attribute = field.Attributes.FirstOrDefault(attr => attr.Name == "EnviedField");
 
-        if (enviedFieldAttribute == null)
+        if (attribute == null)
             return string.Empty;
 
-        string fieldName = property.Identifier.Text;
-        TypeSyntax fieldType = property.Type;
-        TypeInfo typeInfo = semanticModel.GetTypeInfo(fieldType);
-        INamedTypeSymbol namedType = (INamedTypeSymbol)typeInfo.Type!;
+        var (envName, useConstantCase, optional, interpolate, rawString, obfuscate, environment, defaultValue, randomSeed) = GetFieldAttributeArguments(attribute);
 
-        var (envName, useConstantCase, optional, interpolate, rawString, obfuscate, environment, defaultValue, randomSeed) = GetFieldAttributeArguments(enviedFieldAttribute);
-
-        envName ??= fieldName;
+        envName ??= field.Name;
         optional = optional || config.AllowOptionalFields;
         interpolate = interpolate || config.Interpolate;
         rawString = rawString || config.RawStrings;
@@ -172,16 +160,15 @@ namespace {namespaceName};
         if (useConstantCase)
             envName = envName.ToUpper();
 
-        string value = GetValue(envName, env, environment, defaultValue, namedType, optional, context, property);
-       // DebugLog.WriteLine($"{envName}:{value}");
-        if (!optional  && value == null)
+        string value = GetValue(envName, env, environment, defaultValue, field.Type, optional, context, field);
+        if (!optional && value == null)
             return string.Empty;
 
         bool isEmptyOrNull = string.IsNullOrEmpty(value);
-        if (fieldType is PredefinedTypeSyntax predefinedType && predefinedType.Keyword.Text == "string" && !isEmptyOrNull)
+        if (field.Type == "string" && !isEmptyOrNull)
         {
             if (interpolate)
-                value = InterpolateValue(value, config, env, context, property);
+                value = InterpolateValue(value, config, env, context, field);
 
             if (rawString && !obfuscate)
                 value = EscapeString(value, rawString);
@@ -190,11 +177,11 @@ namespace {namespaceName};
         var fieldValue = obfuscate ? ObfuscateField(value, randomSeed, key) : value;
         if (obfuscate) obfuscateFields++;
 
-        var privateField = fieldName.ToLower();
-        return $"\npublic static {(isOlder ? string.Empty : "partial ")}{fieldType} {fieldName} => _{privateField};\n\nprivate static readonly {fieldType} _{privateField} = {GeneratorHelper.GetTypeConversionFor(obfuscate ? $"EnviedHelper.Decrypt(\"{fieldValue}\", _key)" : isEmptyOrNull ? "null" : $"\"{fieldValue}\"", namedType)};";
+        var privateField = field.Name.ToLower();
+        return $"\npublic static {(isOlder ? string.Empty : "partial ")}{field.Type} {field.Name} => _{privateField};\n\nprivate static readonly {field.Type} _{privateField} = {GeneratorHelper.GetTypeConversionFor(obfuscate ? $"EnviedHelper.Decrypt(\"{fieldValue}\", _key)" : isEmptyOrNull ? "null" : $"\"{fieldValue}\"", field.Type)};";
     }
 
-    private static string GetValue(string envName, IDictionary<string, string> env, bool environment, object? defaultValue, INamedTypeSymbol namedType, bool optional, SourceProductionContext context, PropertyDeclarationSyntax property)
+    private static string GetValue(string envName, IDictionary<string, string> env, bool environment, object? defaultValue, TypeInfo fieldType, bool optional, SourceProductionContext context, FieldInfo field)
     {
         if (!env.TryGetValue(envName, out string value))
         {
@@ -213,13 +200,13 @@ namespace {namespaceName};
             {
                 if (!optional)
                 {
-                    ReportDiagnostic(context, "ENV002", "Missing Environment Variable", $"The environment variable '{envName}' is missing.", property.GetLocation(), DiagnosticSeverity.Error);
+                    ReportDiagnostic(context, "ENV002", "Missing Environment Variable", $"The environment variable '{envName}' is missing.", field.GetLocation(), DiagnosticSeverity.Error);
                     return null;
                 }
 
-                if (namedType.IsValueType && namedType.Name != "Nullable")
+                if (fieldType.Name != "string" && !field.IsNullable)
                 {
-                    ReportDiagnostic(context, "ENV008", "Non-string optional fields must be nullable", $"Optional field '{property.Identifier.Text}' of type {namedType} must be nullable", property.GetLocation());
+                    ReportDiagnostic(context, "ENV008", "Non-string optional fields must be nullable", $"Optional field '{field.Name}' of type {fieldType} must be nullable", field.GetLocation());
                     return null;
                 }
             }
@@ -232,16 +219,16 @@ namespace {namespaceName};
                 value = envValue;
         }
 
-        if (!string.IsNullOrEmpty(value) && !GeneratorHelper.IsValidTypeConversion(value, namedType))
+        if (!string.IsNullOrEmpty(value) && !GeneratorHelper.IsValidTypeConversion(value, fieldType))
         {
-            ReportDiagnostic(context, "ENV005", "Invalid Type Conversion", $"Cannot convert '{value}' to type '{namedType.ToDisplayString()}'.", property.GetLocation());
+            ReportDiagnostic(context, "ENV005", "Invalid Type Conversion", $"Cannot convert '{value}' to type '{fieldType}'.", field.GetLocation());
             return null;
         }
 
         return value;
     }
 
-    private static string InterpolateValue(string value, EnviedConfig config, IDictionary<string, string> env, SourceProductionContext context, PropertyDeclarationSyntax property)
+    private static string InterpolateValue(string value, EnviedConfig config, IDictionary<string, string> env, SourceProductionContext context, FieldInfo field)
     {
         return InterpolationPattern.Replace(value, match =>
         {
@@ -253,7 +240,7 @@ namespace {namespaceName};
             {
                 if (!config.AllowOptionalFields)
                 {
-                    ReportDiagnostic(context, "ENV002", "Missing Environment Variable", $"The environment variable '{envName}' is missing.", property.GetLocation());
+                    ReportDiagnostic(context, "ENV002", "Missing Environment Variable", $"The environment variable '{envName}' is missing.", field.GetLocation());
                     return match.Value;
                 }
             }
@@ -300,7 +287,7 @@ namespace {namespaceName};
         var encrypted = encryptor.TransformFinalBlock(Encoding.UTF8.GetBytes(value), 0, value.Length);
 
         Aes.Clear();
-        return Convert.ToBase64String([.. iv, .. encrypted]);
+        return Convert.ToBase64String(iv.Concat(encrypted).ToArray());
     }
 
     private static IDictionary<string, string> LoadEnvironment(
@@ -309,28 +296,20 @@ namespace {namespaceName};
         SourceProductionContext context,
         Location location)
     {
-        try
-        {
-            if (!analyzerConfig.GlobalOptions.TryGetValue("build_property.projectdir", out var projectRoot) || string.IsNullOrEmpty(projectRoot))
-            {
-                ReportDiagnostic(context, "ENV006", "Project Root Not Found", "Could not determine project root directory", location);
-                return null;
-            }
+        if (!File.Exists(config.Path)) ReportDiagnostic(context, "ENV001", "Missing Environment File", $"The environment file '{config.Path}' is missing.", location);
 
-            var envPath = Path.Combine(projectRoot, config.Path);
-            return DotEnv.Fluent().WithEnvFiles(envPath).WithTrimValues().WithExceptions().Read();
-        }
-        catch (FileNotFoundException)
+
+        if (!analyzerConfig.GlobalOptions.TryGetValue("build_property.projectdir", out var projectRoot) || string.IsNullOrEmpty(projectRoot))
         {
-            if (config.RequireEnvFile)
-            {
-                ReportDiagnostic(context, "ENV001", "Missing Environment File", $"The environment file '{config.Path}' is missing.", location);
-            }
+            ReportDiagnostic(context, "ENV006", "Project Root Not Found", "Could not determine project root directory", location);
             return null;
         }
+
+        var envPath = Path.Combine(projectRoot, config.Path);
+        return DotEnv.Fluent().WithEnvFiles(envPath).WithTrimValues().Read();
     }
 
-    private static (string? Name, bool UseConstantCase, bool Optional, bool Interpolate, bool RawString, bool Obfuscate, bool Environment, object? DefaultValue, int RandomSeed) GetFieldAttributeArguments(AttributeSyntax attribute)
+    private static (string? Name, bool UseConstantCase, bool Optional, bool Interpolate, bool RawString, bool Obfuscate, bool Environment, object? DefaultValue, int RandomSeed) GetFieldAttributeArguments(AttributeInfo attribute)
     {
         return (
             Name: GetAttributeArgument<string>(attribute, "name"),
@@ -345,61 +324,19 @@ namespace {namespaceName};
         );
     }
 
-    private static T? GetAttributeArgument<T>(AttributeSyntax attribute, string name)
+    private static T? GetAttributeArgument<T>(AttributeInfo attribute, string name)
     {
-        var argument = attribute.ArgumentList?.Arguments
-            .FirstOrDefault(arg => string.Equals((arg.NameColon?.Name ?? arg.NameEquals?.Name)!.Identifier.Text, name, StringComparison.OrdinalIgnoreCase));
+        var argument = attribute.NamedArguments
+            .FirstOrDefault(arg => string.Equals(arg.Name, name, StringComparison.OrdinalIgnoreCase));
 
-        if (argument?.Expression is LiteralExpressionSyntax literal)
-            return (T)Convert.ChangeType(literal.Token.Value, typeof(T));
+        if (argument.Value is T value)
+            return value;
         return default;
     }
 
-    private static void ReportDiagnostic(SourceProductionContext context, string id, string title, string message, Location location, DiagnosticSeverity severity = DiagnosticSeverity.Error) => context.ReportDiagnostic(Diagnostic.Create(
-            new DiagnosticDescriptor(
-                id,
-                title,
-                message,
-                "Usage",
-                severity,
-                true),
-            location));
-}
-
-public readonly record struct EnviedConfig
-{
-    public string Path { get; init; }
-    public bool RequireEnvFile { get; init; }
-    public string Name { get; init; }
-    public bool Obfuscate { get; init; }
-    public bool AllowOptionalFields { get; init; }
-    public bool UseConstantCase { get; init; }
-    public bool Interpolate { get; init; }
-    public bool RawStrings { get; init; }
-    public bool Environment { get; init; }
-    public int RandomSeed { get; init; }
-
-    public EnviedConfig(
-        string path,
-        bool requireEnvFile,
-        string name,
-        bool obfuscate,
-        bool allowOptionalFields,
-        bool useConstantCase,
-        bool interpolate,
-        bool rawStrings,
-        bool environment,
-        int randomSeed)
+    private static void ReportDiagnostic(SourceProductionContext context, string id, string title, string message, Location location, DiagnosticSeverity severity = DiagnosticSeverity.Error)
     {
-        Path = path;
-        RequireEnvFile = requireEnvFile;
-        Name = name;
-        Obfuscate = obfuscate;
-        AllowOptionalFields = allowOptionalFields;
-        UseConstantCase = useConstantCase;
-        Interpolate = interpolate;
-        RawStrings = rawStrings;
-        Environment = environment;
-        RandomSeed = randomSeed;
+        var diagnostic = Diagnostic.Create(new DiagnosticDescriptor(id, title, message, "Envied", severity, true), location);
+        context.ReportDiagnostic(diagnostic);
     }
 }

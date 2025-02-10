@@ -13,6 +13,7 @@
         "packagesPath": "/home/codespace/.nuget/packages/",
         "outputPath": "/workspaces/Envied.NET/src/Envied.Common/obj/",
         "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
         "configFilePaths": [
           "/home/codespace/.nuget/NuGet/NuGet.Config"
         ],
@@ -44,6 +45,11 @@
         "netstandard2.0": {
           "targetAlias": "netstandard2.0",
           "dependencies": {
+            "Microsoft.CodeAnalysis": {
+              "target": "Package",
+              "version": "[4.3.0, 5.0.0]",
+              "versionCentrallyManaged": true
+            },
             "NETStandard.Library": {
               "suppressParent": "All",
               "target": "Package",
@@ -52,8 +58,18 @@
             },
             "System.Memory": {
               "target": "Package",
-              "version": "[4.6.0, )"
+              "version": "[4.6.0, )",
+              "versionCentrallyManaged": true
             }
+          },
+          "centralPackageVersions": {
+            "dotenv.net": "[3.2.1,4.0.0]",
+            "Envied.NET": "1.0.4",
+            "Envied.NET.SourceGenerator": "1.0.6",
+            "Microsoft.CodeAnalysis": "[4.3.0 ,5.0.0]",
+            "Microsoft.CodeAnalysis.CSharp.Workspaces": "2.4.0",
+            "Polyfill": "[7.16.1,8.0.0]",
+            "System.Memory": "4.6.0"
           },
           "imports": [
             "net461",
@@ -71,7 +87,7 @@
       }
     },
     "/workspaces/Envied.NET/src/Envied/Envied.csproj": {
-      "version": "1.0.0",
+      "version": "1.0.4",
       "restore": {
         "projectUniqueName": "/workspaces/Envied.NET/src/Envied/Envied.csproj",
         "projectName": "Envied.NET",
@@ -79,6 +95,7 @@
         "packagesPath": "/home/codespace/.nuget/packages/",
         "outputPath": "/workspaces/Envied.NET/src/Envied/obj/",
         "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
         "configFilePaths": [
           "/home/codespace/.nuget/NuGet/NuGet.Config"
         ],
@@ -93,7 +110,8 @@
             "targetAlias": "netstandard2.0",
             "projectReferences": {
               "/workspaces/Envied.NET/src/Envied.Common/Envied.Common.csproj": {
-                "projectPath": "/workspaces/Envied.NET/src/Envied.Common/Envied.Common.csproj"
+                "projectPath": "/workspaces/Envied.NET/src/Envied.Common/Envied.Common.csproj",
+                "privateAssets": "all"
               }
             }
           }
@@ -120,6 +138,15 @@
               "version": "[2.0.3, )",
               "autoReferenced": true
             }
+          },
+          "centralPackageVersions": {
+            "dotenv.net": "[3.2.1,4.0.0]",
+            "Envied.NET": "1.0.4",
+            "Envied.NET.SourceGenerator": "1.0.6",
+            "Microsoft.CodeAnalysis": "[4.3.0 ,5.0.0]",
+            "Microsoft.CodeAnalysis.CSharp.Workspaces": "2.4.0",
+            "Polyfill": "[7.16.1,8.0.0]",
+            "System.Memory": "4.6.0"
           },
           "imports": [
             "net461",

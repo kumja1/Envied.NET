@@ -35,7 +35,7 @@ public static class GeneratorHelper
         .GetMembers()
         .Where(static m => m.Name is not (".ctor" or ".cctor") && m.DeclaredAccessibility == Accessibility.Public)
         .ToList();
-        
+
         Span<string> relevantMembers = new string[members.Count];
         for (int i = 0; i < members.Count; i++)
         {
@@ -55,7 +55,7 @@ public static class GeneratorHelper
         {
             return $"M:{method.Name}:{returnType}";
         }
-      
+
         var sb = new StringBuilder();
         sb.Append("M:").Append(method.Name).Append(':').Append(returnType).Append(':');
 
@@ -106,7 +106,7 @@ public static class GeneratorHelper
                 ? $"({typeString})Enum.Parse(typeof({typeString}), {value})"
                 : $"{typeString}.{actualValue}";
         }
-        
+
         return underlyingType.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat) switch
         {
             "Guid" => $"{typeString}.Parse({value})",
@@ -121,7 +121,7 @@ public static class GeneratorHelper
         };
     }
 
-    private static ITypeSymbol GetUnderlyingType(ITypeSymbol type)
+    public static ITypeSymbol GetUnderlyingType(ITypeSymbol type)
     {
         return type switch
         {
@@ -130,13 +130,12 @@ public static class GeneratorHelper
         };
     }
 
-    public static bool IsValidTypeConversion(string value, ITypeSymbol type)
+    public static bool IsValidTypeConversion(string value, FieldInfo field)
     {
-        var underlyingType = GetUnderlyingType(type).ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
-        bool isValid = TypeParserCache.TryParse(underlyingType, value);
+        bool isValid = TypeParserCache.TryParse(field.Type., value);
         if (!isValid)
-            isValid = value.Contains("EnviedHelper.Decrypt") || type.TypeKind == TypeKind.Enum && type.GetMembers().Any(m => m.Name == value);
-        
+            isValid = value.Contains("EnviedHelper.Decrypt") || field.Type.IsEnum && field.Type.EnumMembers.Contains(value);
+
         return isValid;
     }
 }

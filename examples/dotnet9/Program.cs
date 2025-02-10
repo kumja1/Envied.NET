@@ -18,7 +18,7 @@ public static partial class ExampleClass
     [EnviedField(obfuscate: true)]
     public static partial string OBFUSCATED_FIELD { get; }
 
-    [EnviedField(randomSeed: 123, obfuscate:true)]
+    [EnviedField(randomSeed: 123, obfuscate: true)]
     public static partial string RANDOM_SEED_FIELD { get; }
 
     [EnviedField]
