@@ -207,7 +207,7 @@ public static readonly string ApiKey => Env_Generated.ApiKey;
 ```
 ### Using System Environment Variables
 
-Using the `environment` option in either an `Envied` or `EnviedField` instructs the generator to use the value from the `.env` file as the key for a system environment variable read from `Platform.environment`.
+Using the `environment` option in either an `Envied` or `EnviedField` instructs the generator to use the value from the `.env` file as the key for a system environment variable read from `Enviroment`
 
 For example, let's use the `Envied` class and the following `.env` files:
 
