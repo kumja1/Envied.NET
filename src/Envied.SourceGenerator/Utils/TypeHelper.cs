@@ -36,7 +36,7 @@ public static class TypeHelper
     {
         return type switch
         {
-            INamedTypeSymbol namedType when namedType.IsGenericType && namedType.Name == "Nullable" && namedType.TypeArguments.Length == 1 => namedType.TypeArguments[0],
+            INamedTypeSymbol { IsGenericType: true, Name: "Nullable", TypeArguments.Length: 1 } namedType => namedType.TypeArguments[0],
             _ => type
         };
     }
@@ -52,9 +52,7 @@ public static class TypeHelper
     }
 }
 
-
-
-static class TypeParserCache
+internal static class TypeParserCache
 {
     private static readonly Dictionary<string, Func<string, bool>> Parsers = new(StringComparer.Ordinal)
     {

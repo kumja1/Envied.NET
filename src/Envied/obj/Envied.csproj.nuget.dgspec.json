@@ -1,21 +1,21 @@
 {
   "format": 1,
   "restore": {
-    "/workspaces/Envied.NET/src/Envied/Envied.csproj": {}
+    "C:\\Users\\Jesse\\RiderProjects\\Envied.NET\\src\\Envied\\Envied.csproj": {}
   },
   "projects": {
-    "/workspaces/Envied.NET/src/Envied.Common/Envied.Common.csproj": {
+    "C:\\Users\\Jesse\\RiderProjects\\Envied.NET\\src\\Envied.Common\\Envied.Common.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/workspaces/Envied.NET/src/Envied.Common/Envied.Common.csproj",
+        "projectUniqueName": "C:\\Users\\Jesse\\RiderProjects\\Envied.NET\\src\\Envied.Common\\Envied.Common.csproj",
         "projectName": "Envied.Common",
-        "projectPath": "/workspaces/Envied.NET/src/Envied.Common/Envied.Common.csproj",
-        "packagesPath": "/home/codespace/.nuget/packages/",
-        "outputPath": "/workspaces/Envied.NET/src/Envied.Common/obj/",
+        "projectPath": "C:\\Users\\Jesse\\RiderProjects\\Envied.NET\\src\\Envied.Common\\Envied.Common.csproj",
+        "packagesPath": "C:\\Users\\Jesse\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Jesse\\RiderProjects\\Envied.NET\\src\\Envied.Common\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "configFilePaths": [
-          "/home/codespace/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Jesse\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "netstandard2.0"
@@ -39,7 +39,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.100"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "netstandard2.0": {
@@ -80,22 +80,22 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.101/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Users\\Jesse\\.dotnet\\sdk\\9.0.200\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "/workspaces/Envied.NET/src/Envied/Envied.csproj": {
+    "C:\\Users\\Jesse\\RiderProjects\\Envied.NET\\src\\Envied\\Envied.csproj": {
       "version": "1.0.4",
       "restore": {
-        "projectUniqueName": "/workspaces/Envied.NET/src/Envied/Envied.csproj",
+        "projectUniqueName": "C:\\Users\\Jesse\\RiderProjects\\Envied.NET\\src\\Envied\\Envied.csproj",
         "projectName": "Envied.NET",
-        "projectPath": "/workspaces/Envied.NET/src/Envied/Envied.csproj",
-        "packagesPath": "/home/codespace/.nuget/packages/",
-        "outputPath": "/workspaces/Envied.NET/src/Envied/obj/",
+        "projectPath": "C:\\Users\\Jesse\\RiderProjects\\Envied.NET\\src\\Envied\\Envied.csproj",
+        "packagesPath": "C:\\Users\\Jesse\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Jesse\\RiderProjects\\Envied.NET\\src\\Envied\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "configFilePaths": [
-          "/home/codespace/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Jesse\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "netstandard2.0"
@@ -107,8 +107,8 @@
           "netstandard2.0": {
             "targetAlias": "netstandard2.0",
             "projectReferences": {
-              "/workspaces/Envied.NET/src/Envied.Common/Envied.Common.csproj": {
-                "projectPath": "/workspaces/Envied.NET/src/Envied.Common/Envied.Common.csproj",
+              "C:\\Users\\Jesse\\RiderProjects\\Envied.NET\\src\\Envied.Common\\Envied.Common.csproj": {
+                "projectPath": "C:\\Users\\Jesse\\RiderProjects\\Envied.NET\\src\\Envied.Common\\Envied.Common.csproj",
                 "privateAssets": "all"
               }
             }
@@ -124,7 +124,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.100"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "netstandard2.0": {
@@ -160,7 +160,7 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.101/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Users\\Jesse\\.dotnet\\sdk\\9.0.200\\RuntimeIdentifierGraph.json"
         }
       }
     }

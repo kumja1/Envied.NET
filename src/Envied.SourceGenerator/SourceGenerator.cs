@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Text;
 using PropertyInfo = Envied.SourceGenerator.Models.TypeInfo.PropertyInfo;
 using Envied.SourceGenerator.Models.TypeInfo;
@@ -17,49 +16,26 @@ public class EnviedSourceGenerator : IIncrementalGenerator
         Log.LogInfo("Initializing Envied Source Generator...");
         Log.LogInfo("Registering syntax provider...");
 
-        var syntaxProvider = context.SyntaxProvider.ForAttributeWithMetadataName("Envied",
-            predicate: static (node, _) => node is ClassDeclarationSyntax and not null,
-            transform: static (context, _) =>
-            {
-                Log.LogInfo($"Transforming class {context.TargetSymbol?.Name}...");
-                Log.LogInfo($"Class {context.TargetNode?.ToFullString()} is a class declaration");
-                return (Node: (ClassDeclarationSyntax?)context.TargetNode,
+        var syntaxProvider = context.SyntaxProvider.ForAttributeWithMetadataName("Envied.EnviedAttribute",
+                predicate: static (node, _) => node is ClassDeclarationSyntax,
+                transform: static (context, _) =>
+                {
+                    Log.LogInfo($"Transforming class {context.TargetSymbol?.Name}...");
+                    return (Node: (ClassDeclarationSyntax?)context.TargetNode,
                         context.TargetSymbol,
                         context.SemanticModel);
-            })
+                })
             .Where(static x => x.Node is not null && x.TargetSymbol is not null);
 
         Log.LogInfo("Registering syntax provider completed.");
 
         var outputProvider = context.AnalyzerConfigOptionsProvider
             .Combine(syntaxProvider.Collect())
-            .Select((tuple, _) =>
-            {
-                if (tuple.Left == null) throw new ArgumentNullException(nameof(tuple.Left));
-                if (tuple.Right == null) throw new ArgumentNullException(nameof(tuple.Right));
-
-                if (tuple.Right.Length > 0)
-                {
-                    foreach (var classInfo in tuple.Right)
-                    {
-                        if (!Exec.TransformClass(classInfo.Node, classInfo.TargetSymbol, classInfo.SemanticModel, tuple.Left, out var equatableModel)) continue;
-                        return equatableModel;
-                    }
-                }
-                return new ClassInfo
-                {
-                    Name = string.Empty,
-                    Namespace = string.Empty,
-                    Properties = new PropertyInfo[0],
-                    Diagnostics = [],
-                    UsePartial = false
-                };
-            });
+            .SelectMany((tuple, _) => tuple.Right.Length <= 0 ? [ClassInfo.Empty] : tuple.Right.Select(classInfo => Exec.TransformClass(classInfo.Node, classInfo.TargetSymbol,
+                classInfo.SemanticModel, tuple.Left)));
 
         context.RegisterSourceOutput(outputProvider, (context, classInfo) =>
         {
-                        Log.Flush(context);
-
             if (classInfo == null) throw new ArgumentNullException(nameof(classInfo));
 
             Console.WriteLine($"Processing class {classInfo.Name}...");
@@ -73,11 +49,9 @@ public class EnviedSourceGenerator : IIncrementalGenerator
                 {
                     Console.WriteLine($"Diagnostic: {diagnostic.ToDiagnostic().GetMessage()}");
                     Log.LogInfo($"Diagnostic: {diagnostic.ToDiagnostic().GetMessage()}");
-                    if (diagnostic.Severity == DiagnosticSeverity.Error)
-                    {
-                        hasError = true;
-                        break;
-                    }
+                    if (diagnostic.Severity != DiagnosticSeverity.Error) continue;
+                    hasError = true;
+                    break;
                 }
                 Log.LogInfo($"Class {classInfo.Name} has warnings. Skipping generation.");
             }
@@ -88,30 +62,31 @@ public class EnviedSourceGenerator : IIncrementalGenerator
 
     private void GenerateClass(SourceProductionContext context, ClassInfo classInfo)
     {
-        if (classInfo == null) throw new ArgumentNullException(nameof(classInfo));
-
-        Console.WriteLine($"Generating class {classInfo.Name}...");
         var fieldsSource = GenerateFields(classInfo);
         var sb = new StringBuilder($"""
 using Envied.Utils;
 using System.Reflection;
 
-namespace tes;  
+namespace {classInfo.Namespace};  
 
 """);
 
         sb.AppendLine(!classInfo.UsePartial ? @$"public static class {classInfo.Name}_Generated " : @$"public static partial class {classInfo.Name} ");
-        sb.AppendLine(@$"{{
-            {fieldsSource}
-        }}");
+        sb.AppendLine($$"""
+                        {
+                                    {{fieldsSource}}
+                                }
+                        """);
 
         Log.LogInfo($"Generated source for {classInfo.Name}");
+        Log.Flush(context);
         context.AddSource($"{classInfo.Name}.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
     }
 
     private static string GenerateFields(ClassInfo classInfo)
     {
-        if (classInfo == null) throw new ArgumentNullException(nameof(classInfo));
+        if (classInfo == ClassInfo.Empty) 
+            return string.Empty;
 
         Console.WriteLine($"Generating fields for {classInfo.Name}...");
         var fieldsSource = new StringBuilder();

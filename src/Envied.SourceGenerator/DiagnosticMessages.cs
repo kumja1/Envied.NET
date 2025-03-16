@@ -20,7 +20,7 @@ public static class DiagnosticMessages
     public static DiagnosticInfo FieldMustBeStatic => new(
         "ENV007",
         "Field not static",
-        "Field must be static ",
+        "Field must be static",
         DiagnosticSeverity.Error);
 
     public static DiagnosticInfo FieldMustBePartial => new(

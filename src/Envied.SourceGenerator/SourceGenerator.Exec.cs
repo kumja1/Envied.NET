@@ -25,33 +25,22 @@ public static class Exec
 
     private static readonly Aes Aes = Aes.Create();
 
-    public static bool TransformClass(
+    public static ClassInfo TransformClass(
         ClassDeclarationSyntax classSyntax,
         ISymbol classSymbol,
         SemanticModel semanticModel,
-        AnalyzerConfigOptionsProvider analyzerConfig, out ClassInfo classInfo)
+        AnalyzerConfigOptionsProvider analyzerConfig)
     {
+        var classInfo = ClassInfo.Empty;
         var diagnostics = new List<DiagnosticInfo>();
         bool isOlder = IsOlderProject(analyzerConfig);
-        classInfo = new ClassInfo
-        {
-            Name = string.Empty,
-            Namespace = string.Empty,
-            Properties = new PropertyInfo[0],
-            Diagnostics = new List<DiagnosticInfo>(),
-            UsePartial = false
-        };
-
-        if (classSyntax == null || classSymbol == null || semanticModel == null || analyzerConfig == null)
-        {
-            return false;
-        }
-
-        if (!classSyntax.Modifiers.Any(SyntaxKind.StaticKeyword) || (!isOlder && !classSyntax.Modifiers.Any(SyntaxKind.PartialKeyword)))
-        {
-            string partialError = isOlder ? "partial" : "partial and static";
-            diagnostics.Add(DiagnosticMessages.ClassMustBePartial.WithMessageArgs(partialError).WithLocation(classSyntax.GetLocation()));
-            return false;
+        
+        if (!classSyntax.Modifiers.Any(SyntaxKind.StaticKeyword))
+        { 
+            if (!isOlder && !classSyntax.Modifiers.Any(SyntaxKind.PartialKeyword))
+                diagnostics.Add(DiagnosticMessages.ClassMustBePartial.WithLocation(classSyntax.GetLocation()));
+            diagnostics.Add(DiagnosticMessages.ClassMustBeStatic.WithLocation(classSyntax.GetLocation()));
+            return classInfo with { Diagnostics = diagnostics };
         }
 
         var attributeSyntax = classSyntax.AttributeLists
@@ -59,17 +48,17 @@ public static class Exec
             .FirstOrDefault(attr => attr.Name.ToString() == "Envied");
 
         if (attributeSyntax == null)
-            return false;
+            return classInfo with { Diagnostics = diagnostics };
 
         var config = EnviedConfig.From(attributeSyntax);
         if (config == null)
         {
-            return false;
+            return classInfo with { Diagnostics = diagnostics };
         }
         var env = LoadEnvironment(config, analyzerConfig, diagnostics, classSyntax.GetLocation());
 
         if (env == null)
-            return false;
+            return classInfo with { Diagnostics = diagnostics };
 
         var properties = new List<PropertyInfo>();
         foreach (var member in classSyntax.Members)
@@ -77,20 +66,19 @@ public static class Exec
             if (member is not PropertyDeclarationSyntax property)
                 continue;
 
-            var transformedProperty = TransformProperty(property, semanticModel, config, env, diagnostics);
+            var transformedProperty = TransformProperty(property, semanticModel, config, env, isOlder, diagnostics);
             if (transformedProperty != null)
                 properties.Add(transformedProperty.Value);
         }
 
-        classInfo = new ClassInfo
+        return new ClassInfo
         {
-            Name = classSymbol.Name,
-            Namespace = classSymbol.ContainingNamespace?.ToDisplayString() ?? string.Empty,
-            Properties = properties,
             Diagnostics = diagnostics,
-            UsePartial = isOlder,
+            Name = classSymbol.Name,
+            Namespace = classSymbol.ContainingNamespace?.ToDisplayString(),
+            Properties = properties,
+            UsePartial = isOlder
         };
-        return true;
     }
 
     private static Dictionary<string, string>? LoadEnvironment(
@@ -99,16 +87,10 @@ public static class Exec
         List<DiagnosticInfo> diagnostics,
         Location location)
     {
-        if (config == null || analyzerConfig == null || diagnostics == null || location == null)
-        {
-            return null;
-        }
-
         if (!analyzerConfig.GlobalOptions.TryGetValue("build_property.projectdir", out var projectRoot) ||
             string.IsNullOrEmpty(projectRoot))
         {
-
-          //  diagnostics.Add(DiagnosticMessages.ProjectRootNotFound.WithLocation(location));
+          diagnostics.Add(DiagnosticMessages.ProjectRootNotFound.WithLocation(location));
             return [];
         }
 
@@ -121,10 +103,6 @@ public static class Exec
         }
         
         var env = DotEnv.Fluent().WithEnvFiles(envPath).WithTrimValues().Read();
-        if (env == null)
-        {
-            return [];
-        }
         return env.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
     }
 
@@ -133,30 +111,35 @@ public static class Exec
         SemanticModel semanticModel,
         EnviedConfig config,
         Dictionary<string, string> env,
+        bool isOlder,
         List<DiagnosticInfo> diagnostics)
     {
-        if (property == null || semanticModel == null || config == null || env == null || diagnostics == null)
-        {
-            return null;
-        }
-
         var propertySymbol = semanticModel.GetDeclaredSymbol(property);
         if (propertySymbol == null)
             return null;
+
+        if (!property.Modifiers.Any(SyntaxKind.StaticKeyword))
+        {
+            var location = property.GetLocation();
+            if (!isOlder && !property.Modifiers.Any(SyntaxKind.PartialKeyword))
+                diagnostics.Add(DiagnosticMessages.FieldMustBePartial.WithLocation(location));
+            diagnostics.Add(DiagnosticMessages.FieldMustBeStatic.WithLocation(location));
+        }
         var modifiers = property.Modifiers.Select(m => m.Text).ToArray();
-        if (property.Type == null)
-            return null;
+
         var typeInfo = semanticModel.GetTypeInfo(property.Type);
 
         if (typeInfo.Type == null)
-        {
             return null;
-        }
+
         var namedType = (INamedTypeSymbol)typeInfo.Type;
         var fieldName = property.Identifier.Text;
+        var fieldAttribute = property.AttributeLists.SelectMany(al => al.Attributes)
+            .FirstOrDefault(attr => attr.Name.ToString() == "EnviedField");
+
+        if (fieldAttribute == null) return null;
         var fieldConfig = EnviedFieldConfig.From(
-            property.AttributeLists.SelectMany(al => al.Attributes)
-                .FirstOrDefault(attr => attr.Name.ToString() == "EnviedField"),
+           fieldAttribute,
             config);
 
         var envName = fieldConfig.Name ?? fieldName;
@@ -173,7 +156,7 @@ public static class Exec
             property,
             diagnostics);
 
-        if (value == null)
+        if (string.IsNullOrEmpty(value))
         {
             return new PropertyInfo
             {
@@ -184,15 +167,13 @@ public static class Exec
             };
         }
 
-        bool isEmptyOrNull = string.IsNullOrEmpty(value);
-        if (property.Type is PredefinedTypeSyntax predefinedType &&
-            predefinedType.Keyword.Text == "string" &&
-            !isEmptyOrNull)
+    
+        if (property.Type is PredefinedTypeSyntax { Keyword.Text: "string" })
         {
             if (fieldConfig.Interpolate)
                 value = InterpolateValue(value, fieldConfig, env, property, diagnostics);
 
-            if (fieldConfig.RawString && !fieldConfig.Obfuscate)
+            if (fieldConfig is { RawString: true, Obfuscate: false })
                 value = EscapeString(value, fieldConfig.RawString);
         }
 
@@ -204,7 +185,7 @@ public static class Exec
         {
             Name = fieldName,
             Type = TypeInfo.From(namedType),
-            Value = TypeHelper.GetConversionExpression(fieldValue, namedType),
+            Value = TypeHelper.GetConversionExpression(fieldConfig.Obfuscate ? $"EnviedHelper.Decrypt(\"{fieldValue}\", _key)" : $"\"{fieldValue}\"", namedType),
             Modifiers = modifiers,
             IsObfuscated = fieldConfig.Obfuscate,
         };
@@ -220,12 +201,7 @@ public static class Exec
         PropertyDeclarationSyntax property,
         List<DiagnosticInfo> diagnostics)
     {
-        if (env == null || namedType == null || property == null || diagnostics == null)
-        {
-            return null;
-        }
-
-        if (!env.TryGetValue(envName, out string value))
+        if (!env.TryGetValue(envName, out string? value))
         {
             value = Environment.GetEnvironmentVariable(envName);
             if (string.IsNullOrEmpty(value) && defaultValue != null)
@@ -259,86 +235,60 @@ public static class Exec
             }
         }
 
-        if (environment)
+        if (environment && !string.IsNullOrEmpty(value))
         {
             var envValue = Environment.GetEnvironmentVariable(value);
             if (!string.IsNullOrEmpty(envValue))
                 value = envValue;
         }
 
-        if (!string.IsNullOrEmpty(value) && !TypeHelper.IsValidTypeConversion(value, namedType))
-        {
-            diagnostics.Add(DiagnosticMessages.InvalidTypeConversion.WithMessageArgs(value, namedType.ToDisplayString()).WithLocation(property.GetLocation()));
-            return null;
-        }
-
-        return value;
+        if (string.IsNullOrEmpty(value) || TypeHelper.IsValidTypeConversion(value, namedType)) return value;
+       
+        diagnostics.Add(DiagnosticMessages.InvalidTypeConversion.WithMessageArgs(value, namedType.ToDisplayString()).WithLocation(property.GetLocation()));
+        return null;
     }
 
     private static string InterpolateValue(string value, EnviedFieldConfig config, Dictionary<string, string> env, PropertyDeclarationSyntax property, List<DiagnosticInfo> diagnostics)
     {
-        if (config == null || env == null || property == null || diagnostics == null)
-        {
-            return value;
-        }
-
         return InterpolationPattern.Replace(value, match =>
         {
             var envName = match.Groups[1].Value.Trim();
             if (config.UseConstantCase)
                 envName = envName.ToUpper();
 
-            if (!env.TryGetValue(envName, out var replacement))
-            {
-                if (!config.Optional)
-                {
-                    diagnostics.Add(DiagnosticMessages.MissingEnvironmentVariable.WithMessageArgs(envName).WithLocation(property.GetLocation()));
-                    return match.Value;
-                }
-            }
+            if (env.TryGetValue(envName, out var replacement) || config.Optional) return replacement;
+            
+            diagnostics.Add(DiagnosticMessages.MissingEnvironmentVariable.WithMessageArgs(envName).WithLocation(property.GetLocation()));
+            return match.Value;
 
-            return replacement;
         });
     }
 
     private static string EscapeString(string value, bool rawString)
     {
-        if (value == null)
-        {
-            return string.Empty;
-        }
-
-        if (rawString)
-        {
-            var maxQuotes = QuoteRegex.Matches(value).Cast<Match>().Select(m => m.Length).DefaultIfEmpty(0).Max();
-            int delimiterQuotes = Math.Max(3, maxQuotes + 1);
-            string delimiter = new('"', delimiterQuotes);
-            string escapedValue = value.Replace(delimiter, $"{delimiter}\"");
-
-            return $$"""
-            {{delimiter}}
-            {{escapedValue}}
-            {{delimiter}}
-            """;
-        }
-        else
-        {
+        if (!rawString)
             return EscapeSequenceRegex.Replace(value, match =>
             {
                 if (match.Value.StartsWith("\\"))
                     return match.Value;
                 return match.Value.Replace("\"", "\\\"");
             });
-        }
+        
+        
+        int maxQuotes = QuoteRegex.Matches(value).Cast<Match>().Select(m => m.Length).DefaultIfEmpty(0).Max();
+        int delimiterQuotes = Math.Max(3, maxQuotes + 1);
+        string delimiter = new('"', delimiterQuotes);
+        string escapedValue = value.Replace(delimiter, $"{delimiter}\"");
+
+        return $"""
+                 {delimiter}
+                 {escapedValue}
+                 {delimiter}
+                 """;
     }
 
     private static string ObfuscateField(string value, int seed, byte[] key)
     {
-        if (value == null || key == null)
-        {
-            return string.Empty;
-        }
-
         Aes.Key = key;
         var iv = new byte[16];
         var random = seed != 0 ? new Random(seed) : new Random();
@@ -354,17 +304,12 @@ public static class Exec
 
     private static bool IsOlderProject(AnalyzerConfigOptionsProvider analyzerConfig)
     {
-        if (analyzerConfig == null)
-        {
+        if (!analyzerConfig.GlobalOptions.TryGetValue("build_property.TargetFramework", out var targetFramework))
             return true;
-        }
-
-        if (analyzerConfig.GlobalOptions.TryGetValue("build_property.TargetFramework", out var targetFramework))
-        {
-            string versionString = targetFramework.Replace("net", "").Replace("coreapp", "");
-            if (Version.TryParse(versionString, out var version))
-                return version.Major >= 9;
-        }
+        
+        string versionString = targetFramework.Replace("net", "").Replace("coreapp", "");
+        if (Version.TryParse(versionString, out var version))
+            return version.Major >= 9;
         return true;
     }
 }

@@ -14,8 +14,8 @@ public static class KeyHelper
         throw new ArgumentNullException(nameof(assembly));
 
     Log.LogInfo($"Deriving key for assembly: {assembly.Name}");
-
-    List<INamedTypeSymbol> types = GetAllTypes(assembly?.GlobalNamespace)?.ToList() ?? throw new InvalidOperationException("Failed to get types.");
+    
+    List<INamedTypeSymbol> types = GetAllTypes(assembly.GlobalNamespace)?.ToList() ?? throw new InvalidOperationException("Failed to get types.");
     Log.LogInfo($"Found {types.Count} types in assembly: {assembly.Name}");
 
     var hashes = ArrayPool<string>.Shared.Rent(types.Count);
@@ -35,7 +35,7 @@ public static class KeyHelper
         }
 
         Array.Sort(hashes, 0, types.Count, StringComparer.Ordinal);
-        var combinedHash = HashHelper.CombineHashes(assembly.Name, assembly?.Identity?.Version?.ToString() , hashes.AsSpan(0, types.Count));
+        var combinedHash = HashHelper.CombineHashes(assembly.Name, assembly.Identity.Version.ToString() , hashes.AsSpan(0, types.Count));
         return combinedHash;
     }
     finally

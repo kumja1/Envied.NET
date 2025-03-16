@@ -9,9 +9,7 @@ public static class AttributeSyntaxExtensions
     {
         var argument = attribute.ArgumentList?.Arguments
             .FirstOrDefault(arg => string.Equals((arg.NameColon?.Name ?? arg.NameEquals?.Name)!.Identifier.Text, name, StringComparison.OrdinalIgnoreCase));
-         
-        if (argument?.Expression is LiteralExpressionSyntax literal)
-            return (T)literal.Token.Value;
-        return defaultValue;
+
+        return argument?.Expression is LiteralExpressionSyntax { Token.Value: T value } ? value : defaultValue;
     }
 }

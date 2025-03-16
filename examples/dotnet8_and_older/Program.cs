@@ -6,35 +6,34 @@ namespace dotnet8_and_older;
 [Envied(path: ".env")]
 public static class ExampleClass
 {
-    [EnviedField]
-    public static string EXAMPLE_FIELD => ExampleClass_Generated.EXAMPLE_FIELD;
+    [EnviedField] public static string EXAMPLE_FIELD => ExampleClass_Generated.EXAMPLE_FIELD;
 
     [EnviedField(optional: true)]
-    public static string OPTIONAL_FIELD => ExampleClass_Generated.OPTIONAL_FIELD;
+    public static string OPTIONAL_FIELD => "";
 
     [EnviedField(useConstantCase: true)]
-    public static string CONSTANT_CASE_FIELD => ExampleClass_Generated.CONSTANT_CASE_FIELD;
+    public static string CONSTANT_CASE_FIELD => "";
 
     [EnviedField(obfuscate: true)]
-    public static string OBFUSCATED_FIELD => ExampleClass_Generated.OBFUSCATED_FIELD;
+    public static string OBFUSCATED_FIELD => "";
 
     [EnviedField(randomSeed: 123, obfuscate: true)]
-    public static string RANDOM_SEED_FIELD => ExampleClass_Generated.RANDOM_SEED_FIELD;
+    public static string RANDOM_SEED_FIELD => "";
 
     [EnviedField]
-    public static MyEnum ENUM_FIELD => ExampleClass_Generated.ENUM_FIELD;
+    public static MyEnum ENUM_FIELD => MyEnum.Value1;
 
     [EnviedField]
-    public static DateTime DATE_TIME_FIELD => ExampleClass_Generated.DATE_TIME_FIELD;
+    public static DateTime DATE_TIME_FIELD => DateTime.Now;
 
     [EnviedField(defaultValue: true)]
-    public static bool DEFAULT_VALUE_FIELD => ExampleClass_Generated.DEFAULT_VALUE_FIELD;
+    public static bool DEFAULT_VALUE_FIELD => false;
 
     [EnviedField(rawString: true)]
-    public static string RAW_STRING_FIELD => ExampleClass_Generated.RAW_STRING_FIELD;
+    public static string RAW_STRING_FIELD => "";
 
     [EnviedField(interpolate: true)]
-    public static string INTERPOLATION_FIELD => ExampleClass_Generated.INTERPOLATION_FIELD;
+    public static string INTERPOLATION_FIELD =>"";
 }
 
 public enum MyEnum

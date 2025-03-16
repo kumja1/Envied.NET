@@ -27,6 +27,6 @@
     <None Update="README.md" Pack="true" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Envied.Common\bin\Release\netstandard2.0\Envied.Common.dll" Pack="true" PackagePath="lib/netstandard2.0" />
+    <None Include="..\Envied.Common\bin\$(Configuration)\netstandard2.0\Envied.Common.dll" Pack="true" PackagePath="lib/netstandard2.0" />
   </ItemGroup>
 </Project>

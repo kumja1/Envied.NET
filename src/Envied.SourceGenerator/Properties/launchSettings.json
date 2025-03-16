@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "Envied.SourceGenerator": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "../../examples/dotnet8_and_older/dotnet8_and_older.csproj"
+    }
+  }
+}

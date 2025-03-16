@@ -9,4 +9,13 @@ public readonly record struct ClassInfo
 
     public ValueEquatableArray<DiagnosticInfo> Diagnostics { get; init; }
     public ValueEquatableArray<PropertyInfo> Properties { get; init; }
+    
+    public static ClassInfo Empty =>  new()
+    {
+        Name = string.Empty,
+        Namespace = string.Empty,
+        Properties = Array.Empty<PropertyInfo>(),
+        Diagnostics = new List<DiagnosticInfo>(),
+        UsePartial = false
+    };
 }
