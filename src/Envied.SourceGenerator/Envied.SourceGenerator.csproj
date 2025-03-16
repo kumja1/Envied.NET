@@ -20,41 +20,42 @@
     <RepositoryUrl>https://github.com/kumja1/Envied.NET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Copyright>Copyright © 2025 kumja1</Copyright>
-    <GetTargetPathDependsOn>
-      $(GetTargetPathDependsOn);
-      GetDependencyTargetPaths;
-    </GetTargetPathDependsOn>
+    <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="dotenv.net" GeneratePathProperty="true" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis" GeneratePathProperty="true" PrivateAssets="all" />
-    <PackageReference Include="Polyfill" PrivateAssets="all">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
+    <PackageReference Include="PolySharp" PrivateAssets="all">
+      <IncludeAssets>runtime;build;native;contentfiles;analyzers;buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Memory" />
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="../Envied.Common/Envied.Common.csproj" GeneratePathProperty="true" PrivateAssets="all" />
+    <ProjectReference Include="../Envied.Common/Envied.Common.csproj" PrivateAssets="all"/>
   </ItemGroup>
+
   <ItemGroup>
     <None Include="../Envied.Common/bin/$(Configuration)/netstandard2.0/Envied.Common.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    <None Include="$(PKGdotenv_net)\lib\netstandard1.6\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    <None Include="$(PKGMicrosoft_CodeAnalysis)\lib\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(OutputPath)/$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(PKGdotenv_net)/lib/netstandard1.6/*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(PKGMicrosoft_CodeAnalysis)/lib/netstandard2.0/*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
   </ItemGroup>
+
   <ItemGroup>
     <None Update="README.md">
       <Pack>true</Pack>
-      <PackagePath />
+      <PackagePath></PackagePath>
     </None>
   </ItemGroup>
+
   <Target Name="GetDependencyTargetPaths">
     <ItemGroup>
       <ProjectReferenceTargetPath Include="@(ProjectReference->'%(TargetPath)')" Condition="'%(ProjectReference.Identity)' == '../Envied.Common/Envied.Common.csproj'" />
-      <TargetPathWithTargetPlatformMoniker Include="@(ProjectReferenceTargetPath)" IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Include="$(PKGdotenv_net)\lib\netstandard1.6\*.dll" IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Include="$(PKGMicrosoft_CodeAnalysis)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="../../src/Envied.SourceGenerator/bin/Debug/netstandard2.0/Envied.Common.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGdotenv_net)/lib/netstandard1.6/*.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGMicrosoft_CodeAnalysis)/lib/netstandard2.0/*.dll" IncludeRuntimeDependency="false" />
     </ItemGroup>
+    <Message Text="ProjectReferenceTargetPath: @(ProjectReferenceTargetPath)" Importance="High" />
   </Target>
 </Project>

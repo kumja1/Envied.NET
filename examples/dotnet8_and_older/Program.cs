@@ -1,6 +1,7 @@
 using Envied;
 
-namespace dotnet8_example;
+
+namespace dotnet8_and_older;
 
 [Envied(path: ".env")]
 public static class ExampleClass

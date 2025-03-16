@@ -8,29 +8,47 @@ namespace Envied.SourceGenerator.Utils;
 
 public static class KeyHelper
 {
-    public static byte[] DeriveKey(IAssemblySymbol assembly)
-    {
-        List<INamedTypeSymbol> types = [.. GetAllTypes(assembly.GlobalNamespace)];
-        var hashes = ArrayPool<string>.Shared.Rent(types.Count);
+   public static byte[] DeriveKey(IAssemblySymbol assembly)
+{
+    if (assembly is null)
+        throw new ArgumentNullException(nameof(assembly));
 
-        try
+    Log.LogInfo($"Deriving key for assembly: {assembly.Name}");
+
+    List<INamedTypeSymbol> types = GetAllTypes(assembly?.GlobalNamespace)?.ToList() ?? throw new InvalidOperationException("Failed to get types.");
+    Log.LogInfo($"Found {types.Count} types in assembly: {assembly.Name}");
+
+    var hashes = ArrayPool<string>.Shared.Rent(types.Count);
+
+    try
+    {
+        for (int i = 0; i < types.Count; i++)
         {
-            for (int i = 0; i < types.Count; i++)
+            var type = types[i];
+            if (type is null)
             {
-                hashes[i] = HashType(types[i]);
+                Log.LogError($"Type at index {i} is null.");
+                continue;
             }
-            Array.Sort(hashes, 0, types.Count, StringComparer.Ordinal);
-            var combinedHash = HashHelper.CombineHashes(assembly.Name, assembly.Identity.Version.ToString(), hashes.AsSpan(0, types.Count));
-            return combinedHash;
+
+            hashes[i] = HashType(type);
         }
-        finally
-        {
-            ArrayPool<string>.Shared.Return(hashes, clearArray: true);
-        }
+
+        Array.Sort(hashes, 0, types.Count, StringComparer.Ordinal);
+        var combinedHash = HashHelper.CombineHashes(assembly.Name, assembly?.Identity?.Version?.ToString() , hashes.AsSpan(0, types.Count));
+        return combinedHash;
     }
+    finally
+    {
+        ArrayPool<string>.Shared.Return(hashes, clearArray: true);
+    }
+}
 
     private static string HashType(INamedTypeSymbol type)
     {
+        if (type is null)
+            throw new ArgumentNullException(nameof(type));
+            
         var members = type
         .GetMembers()
         .Where(static m => m.Name is not (".ctor" or ".cctor") && m.DeclaredAccessibility == Accessibility.Public)
@@ -50,6 +68,9 @@ public static class KeyHelper
 
     private static string FormatMethod(IMethodSymbol method)
     {
+        if (method is null)
+            throw new ArgumentNullException(nameof(method));
+            
         var returnType = TypeHelper.GetUnderlyingType(method.ReturnType).Name;
         if (method.Parameters.Length == 0)
         {
@@ -71,6 +92,9 @@ public static class KeyHelper
 
     private static IEnumerable<INamedTypeSymbol> GetAllTypes(INamespaceSymbol ns)
     {
+        if (ns is null)
+            throw new ArgumentNullException(nameof(ns));
+            
         var stack = new Stack<INamespaceOrTypeSymbol>();
         stack.Push(ns);
 

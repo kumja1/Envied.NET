@@ -8,7 +8,7 @@
     <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Envied.NET" />
-    <PackageReference Include="Envied.NET.SourceGenerator" />
+    <ProjectReference Include="../../src/Envied.SourceGenerator/Envied.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+    <ProjectReference Include="../../src/Envied/Envied.csproj" />
   </ItemGroup>
 </Project>

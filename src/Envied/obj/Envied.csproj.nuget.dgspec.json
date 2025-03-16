@@ -47,7 +47,7 @@
           "dependencies": {
             "Microsoft.CodeAnalysis": {
               "target": "Package",
-              "version": "[4.3.0, 5.0.0]",
+              "version": "[4.12.0, )",
               "versionCentrallyManaged": true
             },
             "NETStandard.Library": {
@@ -55,21 +55,19 @@
               "target": "Package",
               "version": "[2.0.3, )",
               "autoReferenced": true
-            },
-            "System.Memory": {
-              "target": "Package",
-              "version": "[4.6.0, )",
-              "versionCentrallyManaged": true
             }
           },
           "centralPackageVersions": {
-            "dotenv.net": "[3.2.1,4.0.0]",
+            "coverlet.collector": "6.0.2",
+            "dotenv.net": "3.2.1",
             "Envied.NET": "1.0.4",
-            "Envied.NET.SourceGenerator": "1.0.6",
-            "Microsoft.CodeAnalysis": "[4.3.0 ,5.0.0]",
-            "Microsoft.CodeAnalysis.CSharp.Workspaces": "2.4.0",
-            "Polyfill": "[7.16.1,8.0.0]",
-            "System.Memory": "4.6.0"
+            "Microsoft.CodeAnalysis": "4.12.0",
+            "Microsoft.CodeAnalysis.CSharp.SourceGenerators.Testing.XUnit": "1.1.2",
+            "Microsoft.NET.Test.Sdk": "17.11.1",
+            "PolySharp": "1.15.0",
+            "System.Memory": "4.6.0",
+            "xunit": "2.9.2",
+            "xunit.runner.visualstudio": "2.8.2"
           },
           "imports": [
             "net461",
@@ -140,13 +138,16 @@
             }
           },
           "centralPackageVersions": {
-            "dotenv.net": "[3.2.1,4.0.0]",
+            "coverlet.collector": "6.0.2",
+            "dotenv.net": "3.2.1",
             "Envied.NET": "1.0.4",
-            "Envied.NET.SourceGenerator": "1.0.6",
-            "Microsoft.CodeAnalysis": "[4.3.0 ,5.0.0]",
-            "Microsoft.CodeAnalysis.CSharp.Workspaces": "2.4.0",
-            "Polyfill": "[7.16.1,8.0.0]",
-            "System.Memory": "4.6.0"
+            "Microsoft.CodeAnalysis": "4.12.0",
+            "Microsoft.CodeAnalysis.CSharp.SourceGenerators.Testing.XUnit": "1.1.2",
+            "Microsoft.NET.Test.Sdk": "17.11.1",
+            "PolySharp": "1.15.0",
+            "System.Memory": "4.6.0",
+            "xunit": "2.9.2",
+            "xunit.runner.visualstudio": "2.8.2"
           },
           "imports": [
             "net461",

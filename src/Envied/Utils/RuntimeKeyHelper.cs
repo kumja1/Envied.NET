@@ -6,7 +6,7 @@ using Envied.Common.Utils;
 
 namespace Envied.Utils;
 
-public static class EnviedHelper
+public static class RuntimeKeyHelper
 {
     public static string Decrypt(string value, byte[] key)
     {
