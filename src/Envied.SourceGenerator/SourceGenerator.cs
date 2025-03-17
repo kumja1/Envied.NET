@@ -14,23 +14,17 @@ public class EnviedSourceGenerator : IIncrementalGenerator
     {
         var syntaxProvider = context.SyntaxProvider.ForAttributeWithMetadataName("Envied.EnviedAttribute",
                 predicate: static (node, _) => node is ClassDeclarationSyntax,
-                transform: static (context, _) =>
-                {
-                    Log.LogInfo($"Transforming class {context.TargetSymbol?.Name}...");
-                    return (Node: (ClassDeclarationSyntax?)context.TargetNode,
-                        context.TargetSymbol,
-                        context.SemanticModel);
-                })
-            .Where(static x => x.Node is not null && x.TargetSymbol is not null);
+                transform: static (context, _) => context)
+            .Where(static x => x.TargetNode is not null && x.TargetSymbol is not null);
 
         Log.LogInfo("Registering syntax provider completed.");
 
         var outputProvider = context.AnalyzerConfigOptionsProvider
             .Combine(syntaxProvider.Collect())
-            .SelectMany((tuple, _) => tuple.Right.Length <= 0 ? [ClassInfo.Empty] : tuple.Right.Select(classInfo => Exec.TransformClass(classInfo.Node, classInfo.TargetSymbol,
+            .SelectMany((tuple, _) => tuple.Right.Length <= 0 ? [ClassInfo.Empty] : tuple.Right.Select(classInfo => Exec.TransformClass((ClassDeclarationSyntax)classInfo.TargetNode, classInfo.TargetSymbol,
                 classInfo.SemanticModel, tuple.Left)));
 
-        context.RegisterSourceOutput(outputProvider, (context, classInfo) =>
+        context.RegisterSourceOutput(outputProvider, (sourceContext, classInfo) =>
         {
             if (classInfo.Diagnostics.Length > 0)
             {
@@ -38,11 +32,11 @@ public class EnviedSourceGenerator : IIncrementalGenerator
                 Log.LogInfo($"Class {classInfo.Name} has {classInfo.Diagnostics.Length} diagnostics.");
                 foreach (var diagnostic in classInfo.Diagnostics)
                 {
-                    context.ReportDiagnostic(diagnostic.ToDiagnostic());
+                    sourceContext.ReportDiagnostic(diagnostic.ToDiagnostic());
                 }
             }
 
-            GenerateClass(context, classInfo);
+            GenerateClass(sourceContext, classInfo);
         });
     }
 

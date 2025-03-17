@@ -8,8 +8,7 @@ public static class ExampleClass
 {
     [EnviedField] public static string EXAMPLE_FIELD => ExampleClass_Generated.EXAMPLE_FIELD;
 
-    [EnviedField(optional: true)]
-    public static string OPTIONAL_FIELD => "";
+    [EnviedField(optional: true)] public static string OPTIONAL_FIELD => "";
 
     [EnviedField(useConstantCase: true)]
     public static string CONSTANT_CASE_FIELD => "";

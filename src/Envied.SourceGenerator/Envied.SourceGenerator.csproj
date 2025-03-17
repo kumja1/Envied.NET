@@ -52,11 +52,10 @@
 
   <Target Name="GetDependencyTargetPaths">
     <ItemGroup>
-      <ProjectReferenceTargetPath Include="@(ProjectReference->'%(TargetPath)')" Condition="'%(ProjectReference.Identity)' == '../Envied.Common/Envied.Common.csproj'" />
-      <TargetPathWithTargetPlatformMoniker Include="../../src/Envied.SourceGenerator/bin/Debug/netstandard2.0/Envied.Common.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="../Envied.Common/bin/$(Configuration)/netstandard2.0/*.dll" IncludeRuntimeDependency="false" />
       <TargetPathWithTargetPlatformMoniker Include="$(PKGdotenv_net)/lib/netstandard1.6/*.dll" IncludeRuntimeDependency="false" />
       <TargetPathWithTargetPlatformMoniker Include="$(PKGMicrosoft_CodeAnalysis)/lib/netstandard2.0/*.dll" IncludeRuntimeDependency="false" />
     </ItemGroup>
-    <Message Text="ProjectReferenceTargetPath: @(ProjectReferenceTargetPath)" Importance="High" />
+    <Message Text="ProjectReferenceTargetPath: @(ProjectReference->'%(TargetPath)')" Importance="High" />
   </Target>
 </Project>
