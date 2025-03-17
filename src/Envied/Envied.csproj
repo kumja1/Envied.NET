@@ -6,15 +6,16 @@
     <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
+  
     <PropertyGroup>
-    <Version>1.0.4</Version>
     <Authors>kumja1</Authors>
     <Description>C# port of dart/flutter library Envied</Description>
+     <Version>1.0.5</Version> 
     <PackageId>Envied.NET</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>envied;configuration;environment</PackageTags>
     <PackageLicenseExpression />
-    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageReleaseNotes>Internal Changes</PackageReleaseNotes>
     <ProjectUrl>https://github.com/kumja1/Envied.NET</ProjectUrl>
     <RepositoryUrl>https://github.com/kumja1/Envied.NET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

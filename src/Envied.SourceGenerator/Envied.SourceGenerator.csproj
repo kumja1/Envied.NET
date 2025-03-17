@@ -6,17 +6,17 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
+    <Version>1.1.0</Version>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <Version>1.0.6</Version>
     <Authors>kumja1</Authors>
     <PackageId>Envied.NET.SourceGenerator</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Description>Source generator for Envied.NET</Description>
     <PackageTags>envied;configuration;environment</PackageTags>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageReleaseNotes>Optimize generator performance</PackageReleaseNotes>
     <ProjectUrl>https://github.com/kumja1/Envied.NET</ProjectUrl>
     <RepositoryUrl>https://github.com/kumja1/Envied.NET</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
