@@ -6,7 +6,6 @@ namespace dotnet9_example;
 public static partial class ExampleClass
 {
     [EnviedField]
-
     public static partial string EXAMPLE_FIELD { get; }
 
     [EnviedField(optional: true)]
@@ -40,8 +39,6 @@ public static partial class ExampleClass
 public enum MyEnum
 {
     Value1,
-    Value2,
-    Value3
 }
 
 

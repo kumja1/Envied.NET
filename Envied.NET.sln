@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{04
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotnet8_and_older", "examples\dotnet8_and_older\dotnet8_and_older.csproj", "{8B105D5D-241A-441A-AE9A-CE553993BB88}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotnet9", "examples\dotnet9\dotnet9.csproj", "{E9ED3069-B5B8-447D-A29C-F0931BC76B3B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotnet9_and_newer", "examples\dotnet9_and_newer\dotnet9_and_newer.csproj", "{E9ED3069-B5B8-447D-A29C-F0931BC76B3B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Envied.Common", "src\Envied.Common\Envied.Common.csproj", "{37A7F468-BE82-4E06-B6CF-4CFF013DBB44}"
 EndProject

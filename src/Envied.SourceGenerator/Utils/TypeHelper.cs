@@ -13,7 +13,7 @@ public static class TypeHelper
         string actualValue = value.Trim('"');
         if (type.EnumUnderlyingType != null)
         {
-            return value.Contains("EnviedHelper.Decrypt")
+            return value.Contains("RuntimeKeyHelper.Decrypt")
                 ? $"({typeString})Enum.Parse(typeof({typeString}), {value})"
                 : $"{typeString}.{actualValue}";
         }
@@ -46,7 +46,7 @@ public static class TypeHelper
         var underlyingType = GetUnderlyingType(type).ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
         bool isValid = TypeParserCache.TryParse(underlyingType, value);
         if (!isValid)
-            isValid = value.Contains("EnviedHelper.Decrypt") || type.TypeKind == TypeKind.Enum && type.GetMembers().Any(m => m.Name == value);
+            isValid = value.Contains("RuntimeKeyHelper.Decrypt") || type.TypeKind == TypeKind.Enum && type.GetMembers().Any(m => m.Name == value);
         
         return isValid;
     }

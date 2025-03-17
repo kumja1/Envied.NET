@@ -53,4 +53,10 @@ public static class DiagnosticMessages
         "The environment variable '{0}' is missing.",
         DiagnosticSeverity.Error
     );
+
+    public static DiagnosticInfo OptionalValueTypesMustBeNullable => new(
+        "ENV008",
+        "Non-string optional fields must be nullable",
+        "Optional field '{0}' of type {1} must be nullable",
+        DiagnosticSeverity.Error);
 }

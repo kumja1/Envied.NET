@@ -12,10 +12,6 @@ public class EnviedSourceGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        Console.WriteLine("Initializing Envied Source Generator...");
-        Log.LogInfo("Initializing Envied Source Generator...");
-        Log.LogInfo("Registering syntax provider...");
-
         var syntaxProvider = context.SyntaxProvider.ForAttributeWithMetadataName("Envied.EnviedAttribute",
                 predicate: static (node, _) => node is ClassDeclarationSyntax,
                 transform: static (context, _) =>
@@ -36,27 +32,17 @@ public class EnviedSourceGenerator : IIncrementalGenerator
 
         context.RegisterSourceOutput(outputProvider, (context, classInfo) =>
         {
-            if (classInfo == null) throw new ArgumentNullException(nameof(classInfo));
-
-            Console.WriteLine($"Processing class {classInfo.Name}...");
-            Log.LogInfo($"Processing class {classInfo.Name}...");
-            bool hasError = false;
             if (classInfo.Diagnostics.Length > 0)
             {
                 Console.WriteLine($"Class {classInfo.Name} has {classInfo.Diagnostics.Length} diagnostics.");
                 Log.LogInfo($"Class {classInfo.Name} has {classInfo.Diagnostics.Length} diagnostics.");
                 foreach (var diagnostic in classInfo.Diagnostics)
                 {
-                    Console.WriteLine($"Diagnostic: {diagnostic.ToDiagnostic().GetMessage()}");
-                    Log.LogInfo($"Diagnostic: {diagnostic.ToDiagnostic().GetMessage()}");
-                    if (diagnostic.Severity != DiagnosticSeverity.Error) continue;
-                    hasError = true;
-                    break;
+                    context.ReportDiagnostic(diagnostic.ToDiagnostic());
                 }
-                Log.LogInfo($"Class {classInfo.Name} has warnings. Skipping generation.");
             }
-            if (!hasError)
-                GenerateClass(context, classInfo);
+
+            GenerateClass(context, classInfo);
         });
     }
 
@@ -77,9 +63,7 @@ namespace {classInfo.Namespace};
                                     {{fieldsSource}}
                                 }
                         """);
-
-        Log.LogInfo($"Generated source for {classInfo.Name}");
-        Log.Flush(context);
+        
         context.AddSource($"{classInfo.Name}.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
     }
 
@@ -117,11 +101,8 @@ namespace {classInfo.Namespace};
 
     private static string GenerateField(ClassInfo classInfo, PropertyInfo property)
     {
-        if (classInfo == null) throw new ArgumentNullException(nameof(classInfo));
-        if (property == null) throw new ArgumentNullException(nameof(property));
-
         Console.WriteLine($"Generating field for property {property.Name}...");
         var privateField = property.Name.ToLower();
-        return $"\npublic static {(!classInfo.UsePartial ? string.Empty : "partial ")}{property.Type.Name} {property.Name} => _{privateField};\n\nprivate static readonly {property.Type.Name} _{privateField} = {property.Value};";
+        return $"\npublic static {(classInfo.UsePartial ? "partial " : string.Empty)}{property.Type.Name} {property.Name} => _{privateField};\n\nprivate static readonly {property.Type.Name} _{privateField} = {property.Value};";
     }
 }

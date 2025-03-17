@@ -3,7 +3,7 @@
   "profiles": {
     "Envied.SourceGenerator": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "../../examples/dotnet8_and_older/dotnet8_and_older.csproj"
+      "targetProject": "../../examples/dotnet9_and_newer/dotnet9_and_newer.csproj"
     }
   }
 }

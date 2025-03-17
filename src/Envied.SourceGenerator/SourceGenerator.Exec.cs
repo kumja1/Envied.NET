@@ -51,15 +51,8 @@ public static class Exec
             return classInfo with { Diagnostics = diagnostics };
 
         var config = EnviedConfig.From(attributeSyntax);
-        if (config == null)
-        {
-            return classInfo with { Diagnostics = diagnostics };
-        }
         var env = LoadEnvironment(config, analyzerConfig, diagnostics, classSyntax.GetLocation());
-
-        if (env == null)
-            return classInfo with { Diagnostics = diagnostics };
-
+        
         var properties = new List<PropertyInfo>();
         foreach (var member in classSyntax.Members)
         {
@@ -75,9 +68,9 @@ public static class Exec
         {
             Diagnostics = diagnostics,
             Name = classSymbol.Name,
-            Namespace = classSymbol.ContainingNamespace?.ToDisplayString(),
+            Namespace = classSymbol.ContainingNamespace?.ToDisplayString() ?? string.Empty ,
             Properties = properties,
-            UsePartial = isOlder
+            UsePartial = !isOlder
         };
     }
 
@@ -137,13 +130,15 @@ public static class Exec
         var fieldAttribute = property.AttributeLists.SelectMany(al => al.Attributes)
             .FirstOrDefault(attr => attr.Name.ToString() == "EnviedField");
 
-        if (fieldAttribute == null) return null;
+        if (fieldAttribute == null) 
+            return null;
+        
         var fieldConfig = EnviedFieldConfig.From(
            fieldAttribute,
             config);
 
         var envName = fieldConfig.Name ?? fieldName;
-        if (config.UseConstantCase)
+        if (fieldConfig.UseConstantCase)
             envName = envName.ToUpper();
 
         var value = GetValue(
@@ -185,7 +180,7 @@ public static class Exec
         {
             Name = fieldName,
             Type = TypeInfo.From(namedType),
-            Value = TypeHelper.GetConversionExpression(fieldConfig.Obfuscate ? $"EnviedHelper.Decrypt(\"{fieldValue}\", _key)" : $"\"{fieldValue}\"", namedType),
+            Value = TypeHelper.GetConversionExpression(fieldConfig.Obfuscate ? $"RuntimeKeyHelper.Decrypt(\"{fieldValue}\", _key)" : $"\"{fieldValue}\"", namedType),
             Modifiers = modifiers,
             IsObfuscated = fieldConfig.Obfuscate,
         };
@@ -224,12 +219,7 @@ public static class Exec
 
                 if (namedType.IsValueType && namedType.Name != "Nullable")
                 {
-                    diagnostics.Add(new DiagnosticInfo(
-                        "ENV008",
-                        "Non-string optional fields must be nullable",
-                        $"Optional field '{property.Identifier.Text}' of type {namedType} must be nullable",
-                        DiagnosticSeverity.Error,
-                        property.GetLocation()));
+                    diagnostics.Add(DiagnosticMessages.OptionalValueTypesMustBeNullable.WithLocation(property.GetLocation()).WithMessageArgs(property.Identifier.Text,namedType.Name));
                     return null;
                 }
             }
@@ -309,7 +299,7 @@ public static class Exec
         
         string versionString = targetFramework.Replace("net", "").Replace("coreapp", "");
         if (Version.TryParse(versionString, out var version))
-            return version.Major >= 9;
+            return !(version.Major >= 9);
         return true;
     }
 }
