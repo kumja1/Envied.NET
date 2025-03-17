@@ -5,8 +5,8 @@ namespace Envied.Common.Utils;
 
 public static class HashHelper
 {
-    public static readonly SHA256 Hasher = SHA256.Create();
-    public static readonly Encoding TextEncoder = Encoding.UTF8;
+    private static readonly SHA256 Hasher = SHA256.Create();
+    private static readonly Encoding TextEncoder = Encoding.UTF8;
 
     public static byte[] CombineHashes(string name, string version, Span<string> typeHashes)
     {

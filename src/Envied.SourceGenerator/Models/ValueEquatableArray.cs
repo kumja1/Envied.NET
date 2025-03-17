@@ -1,9 +1,18 @@
 using System.Collections;
 
-public readonly struct ValueEquatableArray<T>(T[] items) : IEnumerable<T>, IEquatable<ValueEquatableArray<T>>
+internal readonly struct ValueEquatableArray<T>: IEnumerable<T>, IEquatable<ValueEquatableArray<T>>
     where T : IEquatable<T>
 {
-    private readonly T[] _items = items ?? [];
+    public ValueEquatableArray(T[]? items)
+    {
+        if (items == null)
+            throw new ArgumentNullException(nameof(items));
+
+            
+        _items = items;
+    }
+
+    private readonly T[] _items;
 
     public int Length => _items?.Length ?? 0;
 
@@ -21,6 +30,8 @@ public readonly struct ValueEquatableArray<T>(T[] items) : IEnumerable<T>, IEqua
 
     public IEnumerator<T> GetEnumerator() => (_items ?? []).AsEnumerable().GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+   
 
     public static implicit operator ValueEquatableArray<T>(T[] array) => new(array);
     public static implicit operator ValueEquatableArray<T>(List<T> list) => new([.. list]);

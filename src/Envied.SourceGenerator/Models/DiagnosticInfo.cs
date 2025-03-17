@@ -2,12 +2,12 @@ using Microsoft.CodeAnalysis;
 
 namespace Envied.SourceGenerator.Models;
 
-public record DiagnosticInfo(
+internal record DiagnosticInfo(
     string Id,
     string Title, 
     string Message,
     DiagnosticSeverity Severity,
-    Location? Location = null,
+    LocationInfo Location = null,
     string[]? MessageArgs = null)
 {
     public Diagnostic ToDiagnostic() => Diagnostic.Create(
@@ -18,7 +18,7 @@ public record DiagnosticInfo(
             "Usage",
             Severity,
             true),
-        Location,
+        Location.ToLocation(),  
         MessageArgs);
 
 
@@ -26,5 +26,8 @@ public record DiagnosticInfo(
         => this with { MessageArgs = args };
 
     public DiagnosticInfo WithLocation(Location location)
+        => WithLocation(LocationInfo.From(location));
+
+     public DiagnosticInfo WithLocation(LocationInfo location)
         => this with { Location = location };
 }

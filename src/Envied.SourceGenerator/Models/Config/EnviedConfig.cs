@@ -3,7 +3,7 @@ using Envied.SourceGenerator.Extensions;
 
 namespace Envied.SourceGenerator.Models.Config;
 
-public readonly record struct EnviedConfig(string Path, bool RequireEnvFile, string Name, bool Obfuscate, bool AllowOptionalFields, bool UseConstantCase, bool Interpolate, bool RawStrings, bool Environment, int RandomSeed)
+internal readonly record struct EnviedConfig(string Path, bool RequireEnvFile, string Name, bool Obfuscate, bool AllowOptionalFields, bool UseConstantCase, bool Interpolate, bool RawStrings, bool Environment, int RandomSeed)
 {
     public static EnviedConfig From(AttributeSyntax attribute)
     {

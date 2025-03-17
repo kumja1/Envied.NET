@@ -1,9 +1,8 @@
 using Microsoft.CodeAnalysis;
-using Envied.SourceGenerator.Models.TypeInfo;
 
 namespace Envied.SourceGenerator.Utils;
 
-public static class TypeHelper
+internal static class TypeHelper
 {
     public static string GetConversionExpression(string value, INamedTypeSymbol type)
     {

@@ -6,49 +6,43 @@ using Envied.Common.Extensions;
 
 namespace Envied.SourceGenerator.Utils;
 
-public static class KeyHelper
+internal static class KeyHelper
 {
-   public static byte[] DeriveKey(IAssemblySymbol assembly)
-{
-    if (assembly is null)
-        throw new ArgumentNullException(nameof(assembly));
-
-    Log.LogInfo($"Deriving key for assembly: {assembly.Name}");
-    
-    List<INamedTypeSymbol> types = GetAllTypes(assembly.GlobalNamespace)?.ToList() ?? throw new InvalidOperationException("Failed to get types.");
-    Log.LogInfo($"Found {types.Count} types in assembly: {assembly.Name}");
-
-    var hashes = ArrayPool<string>.Shared.Rent(types.Count);
-
-    try
+    public static byte[] DeriveKey(IAssemblySymbol assembly)
     {
-        for (int i = 0; i < types.Count; i++)
+        if (assembly is null)
+            throw new ArgumentNullException(nameof(assembly));
+
+
+        List<INamedTypeSymbol> types = GetAllTypes(assembly.GlobalNamespace)?.ToList() ?? throw new InvalidOperationException("Failed to get types.");
+        var hashes = ArrayPool<string>.Shared.Rent(types.Count);
+
+        try
         {
-            var type = types[i];
-            if (type is null)
+            for (int i = 0; i < types.Count; i++)
             {
-                Log.LogError($"Type at index {i} is null.");
-                continue;
+                var type = types[i];
+                if (type is null)
+                    continue;
+                    
+                hashes[i] = HashType(type);
             }
 
-            hashes[i] = HashType(type);
+            Array.Sort(hashes, 0, types.Count, StringComparer.Ordinal);
+            var combinedHash = HashHelper.CombineHashes(assembly.Name, assembly.Identity.Version.ToString(), hashes.AsSpan(0, types.Count));
+            return combinedHash;
         }
-
-        Array.Sort(hashes, 0, types.Count, StringComparer.Ordinal);
-        var combinedHash = HashHelper.CombineHashes(assembly.Name, assembly.Identity.Version.ToString() , hashes.AsSpan(0, types.Count));
-        return combinedHash;
+        finally
+        {
+            ArrayPool<string>.Shared.Return(hashes, clearArray: true);
+        }
     }
-    finally
-    {
-        ArrayPool<string>.Shared.Return(hashes, clearArray: true);
-    }
-}
 
     private static string HashType(INamedTypeSymbol type)
     {
         if (type is null)
             throw new ArgumentNullException(nameof(type));
-            
+
         var members = type
         .GetMembers()
         .Where(static m => m.Name is not (".ctor" or ".cctor") && m.DeclaredAccessibility == Accessibility.Public)
@@ -70,7 +64,7 @@ public static class KeyHelper
     {
         if (method is null)
             throw new ArgumentNullException(nameof(method));
-            
+
         var returnType = TypeHelper.GetUnderlyingType(method.ReturnType).Name;
         if (method.Parameters.Length == 0)
         {
@@ -94,7 +88,7 @@ public static class KeyHelper
     {
         if (ns is null)
             throw new ArgumentNullException(nameof(ns));
-            
+
         var stack = new Stack<INamespaceOrTypeSymbol>();
         stack.Push(ns);
 

@@ -1,9 +1,8 @@
-using System.Globalization;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Envied.SourceGenerator.Extensions;
 
-public static class AttributeSyntaxExtensions
+internal static class AttributeSyntaxExtensions
 {
     public static T? GetArgument<T>(this AttributeSyntax attribute, string name, T? defaultValue = default)
     {

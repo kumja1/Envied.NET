@@ -1,11 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
     <IsRoslynComponent>true</IsRoslynComponent>
-    <DebugSymbols>true</DebugSymbols>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
+    <DebugSymbols>false</DebugSymbols>
     <Version>1.1.0</Version>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -33,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Envied.Common/Envied.Common.csproj" PrivateAssets="all"/>
+    <ProjectReference Include="../Envied.Common/Envied.Common.csproj" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
@@ -52,7 +48,7 @@
 
   <Target Name="GetDependencyTargetPaths">
     <ItemGroup>
-      <TargetPathWithTargetPlatformMoniker Include="../Envied.Common/bin/$(Configuration)/netstandard2.0/*.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="../../src/Envied.SourceGenerator/bin/$(Configuration)/netstandard2.0/*.dll" IncludeRuntimeDependency="false" />
       <TargetPathWithTargetPlatformMoniker Include="$(PKGdotenv_net)/lib/netstandard1.6/*.dll" IncludeRuntimeDependency="false" />
       <TargetPathWithTargetPlatformMoniker Include="$(PKGMicrosoft_CodeAnalysis)/lib/netstandard2.0/*.dll" IncludeRuntimeDependency="false" />
     </ItemGroup>

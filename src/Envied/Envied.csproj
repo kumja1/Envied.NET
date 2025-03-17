@@ -1,20 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
   
     <PropertyGroup>
     <Authors>kumja1</Authors>
     <Description>C# port of dart/flutter library Envied</Description>
-     <Version>1.0.5</Version> 
+    <Version>1.0.5</Version> 
     <PackageId>Envied.NET</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>envied;configuration;environment</PackageTags>
-    <PackageLicenseExpression />
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageReleaseNotes>Internal Changes</PackageReleaseNotes>
     <ProjectUrl>https://github.com/kumja1/Envied.NET</ProjectUrl>
     <RepositoryUrl>https://github.com/kumja1/Envied.NET</RepositoryUrl>

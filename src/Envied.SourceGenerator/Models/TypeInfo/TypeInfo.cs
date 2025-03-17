@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Envied.SourceGenerator.Models.TypeInfo;
 
-public readonly record struct TypeInfo
+internal readonly record struct TypeInfo
 {
     public string Name { get; init; }
     public bool IsEnum { get; init; }

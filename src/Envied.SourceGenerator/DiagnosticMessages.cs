@@ -3,7 +3,7 @@ using Envied.SourceGenerator.Models;
 
 namespace Envied.SourceGenerator;
 
-public static class DiagnosticMessages
+internal static class DiagnosticMessages
 {
     public static DiagnosticInfo ClassMustBeStatic => new(
         "ENV004",

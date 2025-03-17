@@ -1,21 +1,24 @@
 namespace Envied.SourceGenerator.Models.TypeInfo;
 
-public readonly record struct ClassInfo
+internal readonly record struct ClassInfo
 {
-    public bool UsePartial { get; init; }
-    
     public string Name { get; init; }
     public string Namespace { get; init; }
 
+    public LocationInfo Location { get; init; }
+
     public ValueEquatableArray<DiagnosticInfo> Diagnostics { get; init; }
     public ValueEquatableArray<PropertyInfo> Properties { get; init; }
-    
-    public static ClassInfo Empty =>  new()
+
+    public ValueEquatableArray<string> Modifiers { get; init; }
+
+    public static ClassInfo Empty => new()
     {
         Name = string.Empty,
+        Location = LocationInfo.Empty,
         Namespace = string.Empty,
         Properties = Array.Empty<PropertyInfo>(),
-        Diagnostics = new List<DiagnosticInfo>(),
-        UsePartial = false
+        Diagnostics = Array.Empty<DiagnosticInfo>(),
+        Modifiers = Array.Empty<string>()
     };
 }

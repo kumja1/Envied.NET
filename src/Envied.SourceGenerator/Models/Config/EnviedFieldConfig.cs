@@ -3,7 +3,7 @@ using Envied.SourceGenerator.Extensions;
 
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-public readonly record struct EnviedFieldConfig(string? Name, bool UseConstantCase, bool Optional, bool Interpolate, bool RawString, bool Obfuscate, bool Environment, object? DefaultValue, int RandomSeed)
+internal readonly record struct EnviedFieldConfig(string? Name, bool UseConstantCase, bool Optional, bool Interpolate, bool RawString, bool Obfuscate, bool Environment, object? DefaultValue, int RandomSeed)
 {
     public static EnviedFieldConfig From(AttributeSyntax attribute, EnviedConfig defaultConfig)
     {
