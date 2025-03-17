@@ -11,6 +11,8 @@ A cleaner way to handle your environment variables in C#.
 ## Table of Contents
 
 - [Overview](#overview)
+  - [Why Envied](#why-envied)
+  - [Getting Started](#getting-started)
 - [Installation](#installation)
 - [Usage](#usage)
   - [Obfuscation/Encryption](#obfuscationencryption)
@@ -22,6 +24,11 @@ A cleaner way to handle your environment variables in C#.
 
 ## Overview
 
+### Why Envied
+Envied, unlike `IConfiguration`, offers you the ability to encrypt your environment variables using types and metadata unique to your assembly. This ensures that encrypted values are tightly bound to your assembly. However, this encryption is only as secure as your ability to protect your assembly from unauthorized access.
+
+
+### Getting Started
 Using an `.env` file such as:
 
 ```
@@ -129,15 +136,17 @@ Console.WriteLine(Env.Key2); // "VALUE2"
 ```
 
 ### Obfuscation/Encryption
-
-Add the `obfuscate` argument to `EnviedField`:
+To obfuscate an environment variable value, add the `obfuscate` argument to your `EnviedField` attribute:
 
 ```csharp
 [EnviedField(obfuscate: true)]
 ```
+
+This obfuscates(encrypts) the variable's value using the types and metadata in your assembly.
+
 ### Optional Environment Variables
 
-Enable `allowOptionalFields` to allow nullable types. When a default value is not provided and the type is nullable, the generator will assign `null` instead of throwing an exception.
+Set `allowOptionalFields` to true to allow nullable types. When a default value is not provided and the type is nullable, the generator will assign `null` instead of throwing an exception.
 
 Since strings are reference types in C#, you don't have to specify the nullability explicitly:
 
