@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../src/Envied/Envied.csproj"/>
-    <ProjectReference Include="../../src/Envied.SourceGenerator/Envied.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+    <PackageReference Include="Envied.NET" />
+    <PackageReference Include="Envied.NET.SourceGenerator" />
   </ItemGroup>
 </Project>
