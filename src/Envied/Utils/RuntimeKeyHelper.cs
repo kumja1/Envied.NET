@@ -33,17 +33,20 @@ public static class RuntimeKeyHelper
     {
         var name = assembly.GetName();
 
-        var types = assembly.GetTypes().Where(t => !t.Name.EndsWith("Generated")).ToList();
+        var types = assembly.GetTypes()
+        .Where(t => !t.Name.EndsWith("_Generated"))
+        .ToList();
 
         Span<string> hashes = new string[types.Count];
         for (var i = 0; i < types.Count; i++)
         {
             hashes[i] = HashType(types[i]);
         }
-
+        
         hashes.Sort(StringComparer.Ordinal);
 
-        return HashHelper.CombineHashes(name.Name, name.Version?.ToString(), hashes);
+        var combinedHash = HashHelper.CombineHashes(name.Name, name.Version?.ToString(), hashes);
+        return combinedHash;
     }
 
     private static string HashType(Type type)
@@ -91,4 +94,3 @@ public static class RuntimeKeyHelper
         return sb.ToString();
     }
 }
-

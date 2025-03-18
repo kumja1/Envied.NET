@@ -2,7 +2,7 @@
   <PropertyGroup>
     <IsRoslynComponent>true</IsRoslynComponent>
     <DebugSymbols>false</DebugSymbols>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeBuildOutput>false</IncludeBuildOutput>

@@ -25,7 +25,7 @@ internal static class Exec
 
     private static readonly Aes Aes = Aes.Create();
 
-    public static ClassInfo TransformClass(
+    internal static ClassInfo TransformClass(
         ClassDeclarationSyntax classSyntax,
         ISymbol classSymbol,
         SemanticModel semanticModel,

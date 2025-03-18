@@ -6,7 +6,7 @@
     <PropertyGroup>
     <Authors>kumja1</Authors>
     <Description>C# port of dart/flutter library Envied</Description>
-    <Version>1.0.5</Version> 
+    <Version>1.0.6</Version> 
     <PackageId>Envied.NET</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>envied;configuration;environment</PackageTags>
@@ -18,9 +18,12 @@
     <Copyright>Copyright © 2025 kumja1</Copyright>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Envied.Common\Envied.Common.csproj" PrivateAssets="all" Pack="true" />
+    <ProjectReference Include="../Envied.Common/Envied.Common.csproj" PrivateAssets="all" Pack="true" />
   </ItemGroup>
   <ItemGroup>
     <None Update="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../Envied.Common/bin/$(Configuration)/netstandard2.0/Envied.Common.dll" Pack="true" PackagePath="lib/netstandard2.0" />
   </ItemGroup>
 </Project>

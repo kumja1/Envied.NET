@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using PropertyInfo = Envied.SourceGenerator.Models.TypeInfo.PropertyInfo;
 using Envied.SourceGenerator.Models.TypeInfo;
+using Envied.SourceGenerator.Utils;
 
 namespace Envied.SourceGenerator;
 
@@ -47,7 +48,7 @@ public class EnviedSourceGenerator : IIncrementalGenerator
 
         if (classInfo.Properties.Length == 0)
             return;
-
+        
         GenerateClass(context, classInfo, isOlderProject);
     }
 
@@ -63,7 +64,7 @@ namespace {classInfo.Namespace};
 
 """);
 
-        sb.AppendLine(isOlderProject ? @$"public static class {classInfo.Name}_Generated " : @$"public static partial class {classInfo.Name} ");
+        sb.AppendLine(isOlderProject ? @$"internal static class {classInfo.Name}_Generated " : @$"internal static partial class {classInfo.Name} ");
         sb.AppendLine($$"""
                         {
                                     {{fieldsSource}}
@@ -117,6 +118,6 @@ namespace {classInfo.Namespace};
         }
 
         var privateField = property.Name.ToLower();
-        return $"\npublic static {(!isOlderProject ? "partial " : string.Empty)}{property.Type.Name} {property.Name} => _{privateField};\n\nprivate static readonly {property.Type.Name} _{privateField} = {property.Value};";
+        return $"\ninternal static {(!isOlderProject ? "partial " : string.Empty)}{property.Type.Name} {property.Name} => _{privateField};\n\nprivate static readonly {property.Type.Name} _{privateField} = {property.Value};";
     }
 }

@@ -10,7 +10,7 @@ public static class HashHelper
 
     public static byte[] CombineHashes(string name, string version, Span<string> typeHashes)
     {
-        var sb = new StringBuilder(name.Length + version.Length + typeHashes.Length * 64);
+        var sb = new StringBuilder();
         sb.Append(name).Append('|').Append(version);
 
         foreach (var hash in typeHashes)

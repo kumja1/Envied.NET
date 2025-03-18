@@ -4,7 +4,7 @@ namespace Envied.SourceGenerator.Utils;
 
 internal static class TypeHelper
 {
-    public static string GetConversionExpression(string value, INamedTypeSymbol type)
+    internal static string GetConversionExpression(string value, INamedTypeSymbol type)
     {
         var underlyingType = GetUnderlyingType(type);
         var typeString = underlyingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
@@ -31,7 +31,7 @@ internal static class TypeHelper
         };
     }
 
-    public static ITypeSymbol GetUnderlyingType(ITypeSymbol type)
+    internal static ITypeSymbol GetUnderlyingType(ITypeSymbol type)
     {
         return type switch
         {
@@ -40,7 +40,7 @@ internal static class TypeHelper
         };
     }
 
-      public static bool IsValidTypeConversion(string value, ITypeSymbol type)
+      internal static bool IsValidTypeConversion(string value, ITypeSymbol type)
     {
         var underlyingType = GetUnderlyingType(type).ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
         bool isValid = TypeParserCache.TryParse(underlyingType, value);

@@ -7,9 +7,9 @@ internal readonly record struct EnviedConfig(string Path, bool RequireEnvFile, s
 {
     public static EnviedConfig From(AttributeSyntax attribute)
     {
-        var path = attribute.GetArgument<string>("Path",".env");
+        var path = attribute.GetArgument("Path", ".env");
         var requireEnvFile = attribute.GetArgument<bool>("RequireEnvFile");
-        var name = attribute.GetArgument<string>("Name","");
+        var name = attribute.GetArgument("Name", "");
         var obfuscate = attribute.GetArgument<bool>("Obfuscate");
         var allowOptionalFields = attribute.GetArgument<bool>("AllowOptionalFields");
         var useConstantCase = attribute.GetArgument<bool>("UseConstantCase");

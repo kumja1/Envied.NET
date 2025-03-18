@@ -8,15 +8,27 @@ namespace Envied.SourceGenerator.Utils;
 
 internal static class KeyHelper
 {
-    public static byte[] DeriveKey(IAssemblySymbol assembly)
+    private static readonly Dictionary<string, string> _cachedHashes = new(StringComparer.Ordinal);
+
+    internal static byte[] DeriveKey(IAssemblySymbol assembly)
+{
+    if (assembly is null)
+        throw new ArgumentNullException(nameof(assembly));
+
+    List<INamedTypeSymbol> types = GetAllTypes(assembly.GlobalNamespace)?.ToList() 
+        ?? throw new InvalidOperationException("Failed to get types.");
+    string[] hashes;
+
+    if (_cachedHashes.TryGetValue(assembly.Identity.Name, out var cachedHash))
     {
-        if (assembly is null)
-            throw new ArgumentNullException(nameof(assembly));
-
-
-        List<INamedTypeSymbol> types = GetAllTypes(assembly.GlobalNamespace)?.ToList() ?? throw new InvalidOperationException("Failed to get types.");
-        var hashes = ArrayPool<string>.Shared.Rent(types.Count);
-
+        hashes = cachedHash.Split(',');
+        if (hashes.Length != types.Count)
+            throw new InvalidOperationException("Cached hash count does not match the number of types.");
+        return HashHelper.CombineHashes(assembly.Name, assembly.Identity.Version.ToString(), hashes.AsSpan(0, types.Count));
+    }
+    else
+    {
+        hashes = ArrayPool<string>.Shared.Rent(types.Count);
         try
         {
             for (int i = 0; i < types.Count; i++)
@@ -24,19 +36,19 @@ internal static class KeyHelper
                 var type = types[i];
                 if (type is null)
                     continue;
-                    
+
                 hashes[i] = HashType(type);
             }
-
             Array.Sort(hashes, 0, types.Count, StringComparer.Ordinal);
-            var combinedHash = HashHelper.CombineHashes(assembly.Name, assembly.Identity.Version.ToString(), hashes.AsSpan(0, types.Count));
-            return combinedHash;
+            _cachedHashes[assembly.Identity.Name] = string.Join(",", hashes.ToList().Take(types.Count));
+            return HashHelper.CombineHashes(assembly.Name, assembly.Identity.Version.ToString(), hashes.AsSpan(0, types.Count));
         }
         finally
         {
             ArrayPool<string>.Shared.Return(hashes, clearArray: true);
         }
     }
+}
 
     private static string HashType(INamedTypeSymbol type)
     {

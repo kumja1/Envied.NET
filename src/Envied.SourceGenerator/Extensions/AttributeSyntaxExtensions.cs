@@ -4,7 +4,7 @@ namespace Envied.SourceGenerator.Extensions;
 
 internal static class AttributeSyntaxExtensions
 {
-    public static T? GetArgument<T>(this AttributeSyntax attribute, string name, T? defaultValue = default)
+    internal static T? GetArgument<T>(this AttributeSyntax attribute, string name, T? defaultValue = default)
     {
         var argument = attribute.ArgumentList?.Arguments
             .FirstOrDefault(arg => string.Equals((arg.NameColon?.Name ?? arg.NameEquals?.Name)!.Identifier.Text, name, StringComparison.OrdinalIgnoreCase));

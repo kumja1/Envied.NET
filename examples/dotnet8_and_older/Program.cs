@@ -28,7 +28,7 @@ public static class ExampleClass
     [EnviedField(defaultValue: true)]
     public static bool DEFAULT_VALUE_FIELD => ExampleClass_Generated.DEFAULT_VALUE_FIELD;
 
-    [EnviedField(rawString: true)]
+    [EnviedField(rawString: true, obfuscate:true)]
     public static string RAW_STRING_FIELD => ExampleClass_Generated.RAW_STRING_FIELD;
 
     [EnviedField(interpolate: true)]
@@ -46,6 +46,7 @@ public static class Program
 {
     static void Main()
     {
+        
         Console.WriteLine(ExampleClass.EXAMPLE_FIELD); // Should print "example_value"
         Console.WriteLine(ExampleClass.OPTIONAL_FIELD); // Should print empty string
         Console.WriteLine(ExampleClass.CONSTANT_CASE_FIELD); // Should print "constant_value"
