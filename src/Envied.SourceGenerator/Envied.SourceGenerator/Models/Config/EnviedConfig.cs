@@ -1,9 +1,20 @@
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Envied.SourceGenerator.Extensions;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Envied.SourceGenerator.Models.Config;
 
-internal readonly record struct EnviedConfig(string Path, bool RequireEnvFile, string Name, bool Obfuscate, bool AllowOptionalFields, bool UseConstantCase, bool Interpolate, bool RawStrings, bool Environment, int RandomSeed)
+internal readonly record struct EnviedConfig(
+    string Path,
+    bool RequireEnvFile,
+    string Name,
+    bool Obfuscate,
+    bool AllowOptionalFields,
+    bool UseConstantCase,
+    bool Interpolate,
+    bool RawStrings,
+    bool Environment,
+    int RandomSeed
+)
 {
     public static EnviedConfig From(AttributeSyntax attribute)
     {
@@ -18,7 +29,17 @@ internal readonly record struct EnviedConfig(string Path, bool RequireEnvFile, s
         var environment = attribute.GetArgument<bool>("Environment");
         var randomSeed = attribute.GetArgument<int>("RandomSeed");
 
-        return new EnviedConfig(path, requireEnvFile, name, obfuscate, allowOptionalFields, useConstantCase, interpolate, rawStrings, environment, randomSeed);
+        return new EnviedConfig(
+            path,
+            requireEnvFile,
+            name,
+            obfuscate,
+            allowOptionalFields,
+            useConstantCase,
+            interpolate,
+            rawStrings,
+            environment,
+            randomSeed
+        );
     }
 }
-

@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <PackageReference Include="System.Memory" />
+        <PackageReference Include="dotenv.net" PrivateAssets="all" />
   </ItemGroup>
 </Project>

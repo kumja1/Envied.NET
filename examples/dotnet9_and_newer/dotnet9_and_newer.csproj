@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-     <PackageReference Include="Envied.NET" />
-    <PackageReference Include="Envied.NET.SourceGenerator"  />
+    <PackageReference Include="Envied.NET" />
+    <PackageReference Include="Envied.NET.SourceGenerator" />
   </ItemGroup>
 </Project>

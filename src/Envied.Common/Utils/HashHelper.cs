@@ -20,7 +20,6 @@ public static class HashHelper
         return Hasher.ComputeHash(TextEncoder.GetBytes(combined));
     }
 
-
     public static byte[] HashMembers(string typeName, Span<string> members)
     {
         var sb = new StringBuilder(typeName.Length + 1);
@@ -34,6 +33,4 @@ public static class HashHelper
 
         return Hasher.ComputeHash(TextEncoder.GetBytes(sb.ToString()));
     }
-
-
 }

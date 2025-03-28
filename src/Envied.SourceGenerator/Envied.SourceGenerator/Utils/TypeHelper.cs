@@ -25,9 +25,21 @@ internal static class TypeHelper
             "Version" => $"{typeString}.Parse({value})",
             "Uri" => $"new Uri({value})",
             "string" => $"{value}",
-            "int" or "long" or "short" or "byte" or "sbyte" or "uint" or "ulong" or "ushort" or "float" or "double" or "decimal" => actualValue,
+            "int"
+            or "long"
+            or "short"
+            or "byte"
+            or "sbyte"
+            or "uint"
+            or "ulong"
+            or "ushort"
+            or "float"
+            or "double"
+            or "decimal" => actualValue,
             "bool" => actualValue.ToLower(),
-            _ => throw new NotSupportedException($"Type '{underlyingType}' is not supported for conversion.")
+            _ => throw new NotSupportedException(
+                $"Type '{underlyingType}' is not supported for conversion."
+            ),
         };
     }
 
@@ -35,25 +47,35 @@ internal static class TypeHelper
     {
         return type switch
         {
-            INamedTypeSymbol { IsGenericType: true, Name: "Nullable", TypeArguments.Length: 1 } namedType => namedType.TypeArguments[0],
-            _ => type
+            INamedTypeSymbol
+            {
+                IsGenericType: true,
+                Name: "Nullable",
+                TypeArguments.Length: 1
+            } namedType => namedType.TypeArguments[0],
+            _ => type,
         };
     }
 
-      internal static bool IsValidTypeConversion(string value, ITypeSymbol type)
+    internal static bool IsValidTypeConversion(string value, ITypeSymbol type)
     {
-        var underlyingType = GetUnderlyingType(type).ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
+        var underlyingType = GetUnderlyingType(type)
+            .ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
         bool isValid = TypeParserCache.TryParse(underlyingType, value);
         if (!isValid)
-            isValid = value.Contains("RuntimeKeyHelper.Decrypt") || type.TypeKind == TypeKind.Enum && type.GetMembers().Any(m => m.Name == value);
-        
+            isValid =
+                value.Contains("RuntimeKeyHelper.Decrypt")
+                || type.TypeKind == TypeKind.Enum && type.GetMembers().Any(m => m.Name == value);
+
         return isValid;
     }
 }
 
 internal static class TypeParserCache
 {
-    private static readonly Dictionary<string, Func<string, bool>> Parsers = new(StringComparer.Ordinal)
+    private static readonly Dictionary<string, Func<string, bool>> Parsers = new(
+        StringComparer.Ordinal
+    )
     {
         ["Guid"] = s => Guid.TryParse(s, out _),
         ["DateTime"] = s => DateTime.TryParse(s, out _),
@@ -72,8 +94,9 @@ internal static class TypeParserCache
         ["double"] = s => double.TryParse(s, out _),
         ["decimal"] = s => decimal.TryParse(s, out _),
         ["bool"] = s => bool.TryParse(s, out _),
-        ["string"] = _ => true
+        ["string"] = _ => true,
     };
 
-    public static bool TryParse(string typeName, string value) => Parsers.TryGetValue(typeName, out var parser) && parser(value);
+    public static bool TryParse(string typeName, string value) =>
+        Parsers.TryGetValue(typeName, out var parser) && parser(value);
 }

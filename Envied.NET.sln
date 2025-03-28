@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
@@ -7,7 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9B5D91CD-702
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Envied", "src\Envied\Envied.csproj", "{8CE9E873-AD42-439B-84EB-C30527C5CEFE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Envied.SourceGenerator", "src\Envied.SourceGenerator\Envied.SourceGenerator.csproj", "{5D7DC506-6EE0-4B32-A61A-B31EF0489813}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Envied.SourceGenerator", "src\Envied.SourceGenerator\Envied.SourceGenerator\Envied.SourceGenerator.csproj", "{5D7DC506-6EE0-4B32-A61A-B31EF0489813}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{04F39691-4BAE-4508-8421-67AFA82A94DB}"
 EndProject
@@ -16,6 +16,16 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotnet9_and_newer", "examples\dotnet9_and_newer\dotnet9_and_newer.csproj", "{E9ED3069-B5B8-447D-A29C-F0931BC76B3B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Envied.Common", "src\Envied.Common\Envied.Common.csproj", "{37A7F468-BE82-4E06-B6CF-4CFF013DBB44}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SourceGenerator", "SourceGenerator", "{47ACED5D-0C22-4E6F-98E8-E57DA03A7F24}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Analyzer", "Analyzer", "{5B635B0A-C416-4800-A7BB-7B75F0BDA658}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Envied.SourceGenerator", "Envied.SourceGenerator", "{9CC76664-1424-4691-903E-788684B55AA1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Envied.SourceGenerator.Analyzer", "src\Envied.SourceGenerator\Envied.SourceGenerator.Analyzer\Envied.SourceGenerator.Analyzer\Envied.SourceGenerator.Analyzer.csproj", "{6DB991A8-F5B3-4E88-96D0-74DB74811B47}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Envied.SourceGenerator.Analyzer.CodeFixes", "src\Envied.SourceGenerator\Envied.SourceGenerator.Analyzer\Envied.SourceGenerator.Analyzer.CodeFixes\Envied.SourceGenerator.Analyzer.CodeFixes.csproj", "{0CCC2D35-4321-4016-916B-7DB33A7A1F4A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,16 +53,29 @@ Global
 		{37A7F468-BE82-4E06-B6CF-4CFF013DBB44}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37A7F468-BE82-4E06-B6CF-4CFF013DBB44}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37A7F468-BE82-4E06-B6CF-4CFF013DBB44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DB991A8-F5B3-4E88-96D0-74DB74811B47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DB991A8-F5B3-4E88-96D0-74DB74811B47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DB991A8-F5B3-4E88-96D0-74DB74811B47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DB991A8-F5B3-4E88-96D0-74DB74811B47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CCC2D35-4321-4016-916B-7DB33A7A1F4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CCC2D35-4321-4016-916B-7DB33A7A1F4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CCC2D35-4321-4016-916B-7DB33A7A1F4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CCC2D35-4321-4016-916B-7DB33A7A1F4A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{5B635B0A-C416-4800-A7BB-7B75F0BDA658} = {47ACED5D-0C22-4E6F-98E8-E57DA03A7F24}
+		{47ACED5D-0C22-4E6F-98E8-E57DA03A7F24} = {9B5D91CD-702E-4BD8-85AE-EEAEEACE1313}
 		{8CE9E873-AD42-439B-84EB-C30527C5CEFE} = {9B5D91CD-702E-4BD8-85AE-EEAEEACE1313}
-		{5D7DC506-6EE0-4B32-A61A-B31EF0489813} = {9B5D91CD-702E-4BD8-85AE-EEAEEACE1313}
+		{5D7DC506-6EE0-4B32-A61A-B31EF0489813} = {47ACED5D-0C22-4E6F-98E8-E57DA03A7F24}
 		{8B105D5D-241A-441A-AE9A-CE553993BB88} = {04F39691-4BAE-4508-8421-67AFA82A94DB}
 		{E9ED3069-B5B8-447D-A29C-F0931BC76B3B} = {04F39691-4BAE-4508-8421-67AFA82A94DB}
 		{37A7F468-BE82-4E06-B6CF-4CFF013DBB44} = {9B5D91CD-702E-4BD8-85AE-EEAEEACE1313}
+		{9CC76664-1424-4691-903E-788684B55AA1} = {9B5D91CD-702E-4BD8-85AE-EEAEEACE1313}
+		{6DB991A8-F5B3-4E88-96D0-74DB74811B47} = {5B635B0A-C416-4800-A7BB-7B75F0BDA658}
+		{0CCC2D35-4321-4016-916B-7DB33A7A1F4A} = {5B635B0A-C416-4800-A7BB-7B75F0BDA658}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1542C448-88ED-4AF3-80F6-7E9BB6FDA7D7}

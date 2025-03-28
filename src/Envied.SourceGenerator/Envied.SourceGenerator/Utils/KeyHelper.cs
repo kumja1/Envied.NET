@@ -1,8 +1,8 @@
 using System.Buffers;
 using System.Text;
+using Envied.Common.Extensions;
 using Envied.Common.Utils;
 using Microsoft.CodeAnalysis;
-using Envied.Common.Extensions;
 
 namespace Envied.SourceGenerator.Utils;
 
@@ -11,60 +11,78 @@ internal static class KeyHelper
     private static readonly Dictionary<string, string> _cachedHashes = new(StringComparer.Ordinal);
 
     internal static byte[] DeriveKey(IAssemblySymbol assembly)
-{
-    if (assembly is null)
-        throw new ArgumentNullException(nameof(assembly));
-
-    List<INamedTypeSymbol> types = GetAllTypes(assembly.GlobalNamespace)?.ToList() 
-        ?? throw new InvalidOperationException("Failed to get types.");
-    string[] hashes;
-
-    if (_cachedHashes.TryGetValue(assembly.Identity.Name, out var cachedHash))
     {
-        hashes = cachedHash.Split(',');
-        if (hashes.Length != types.Count)
-            throw new InvalidOperationException("Cached hash count does not match the number of types.");
-        return HashHelper.CombineHashes(assembly.Name, assembly.Identity.Version.ToString(), hashes.AsSpan(0, types.Count));
-    }
-    else
-    {
-        hashes = ArrayPool<string>.Shared.Rent(types.Count);
-        try
+        if (assembly is null)
+            throw new ArgumentNullException(nameof(assembly));
+
+        List<INamedTypeSymbol> types =
+            GetAllTypes(assembly.GlobalNamespace)?.ToList()
+            ?? throw new InvalidOperationException("Failed to get types.");
+        string[] hashes;
+
+        if (_cachedHashes.TryGetValue(assembly.Identity.Name, out var cachedHash))
         {
-            for (int i = 0; i < types.Count; i++)
+            hashes = cachedHash.Split(',');
+            if (hashes.Length != types.Count)
+                throw new InvalidOperationException(
+                    "Cached hash count does not match the number of types."
+                );
+            return HashHelper.CombineHashes(
+                assembly.Name,
+                assembly.Identity.Version.ToString(),
+                hashes.AsSpan(0, types.Count)
+            );
+        }
+        else
+        {
+            hashes = ArrayPool<string>.Shared.Rent(types.Count);
+            try
             {
-                var type = types[i];
-                if (type is null)
-                    continue;
+                for (int i = 0; i < types.Count; i++)
+                {
+                    var type = types[i];
+                    if (type is null)
+                        continue;
 
-                hashes[i] = HashType(type);
+                    hashes[i] = HashType(type);
+                }
+                Array.Sort(hashes, 0, types.Count, StringComparer.Ordinal);
+                _cachedHashes[assembly.Identity.Name] = string.Join(
+                    ",",
+                    hashes.ToList().Take(types.Count)
+                );
+                return HashHelper.CombineHashes(
+                    assembly.Name,
+                    assembly.Identity.Version.ToString(),
+                    hashes.AsSpan(0, types.Count)
+                );
             }
-            Array.Sort(hashes, 0, types.Count, StringComparer.Ordinal);
-            _cachedHashes[assembly.Identity.Name] = string.Join(",", hashes.ToList().Take(types.Count));
-            return HashHelper.CombineHashes(assembly.Name, assembly.Identity.Version.ToString(), hashes.AsSpan(0, types.Count));
-        }
-        finally
-        {
-            ArrayPool<string>.Shared.Return(hashes, clearArray: true);
+            finally
+            {
+                ArrayPool<string>.Shared.Return(hashes, clearArray: true);
+            }
         }
     }
-}
 
     private static string HashType(INamedTypeSymbol type)
     {
         if (type is null)
             throw new ArgumentNullException(nameof(type));
 
-        var members = type
-        .GetMembers()
-        .Where(static m => m.Name is not (".ctor" or ".cctor") && m.DeclaredAccessibility == Accessibility.Public)
-        .ToList();
+        var members = type.GetMembers()
+            .Where(static m =>
+                m.Name is not (".ctor" or ".cctor")
+                && m.DeclaredAccessibility == Accessibility.Public
+            )
+            .ToList();
 
         Span<string> relevantMembers = new string[members.Count];
         for (int i = 0; i < members.Count; i++)
         {
             var member = members[i];
-            relevantMembers[i] = member is IMethodSymbol method ? FormatMethod(method) : $"F:{member.Name}";
+            relevantMembers[i] = member is IMethodSymbol method
+                ? FormatMethod(method)
+                : $"F:{member.Name}";
         }
 
         relevantMembers.Sort(StringComparer.Ordinal);
@@ -88,7 +106,8 @@ internal static class KeyHelper
 
         for (int i = 0; i < method.Parameters.Length; i++)
         {
-            if (i > 0) sb.Append(',');
+            if (i > 0)
+                sb.Append(',');
             var param = method.Parameters[i];
             sb.Append(param.Name).Append(':').Append(TypeHelper.GetUnderlyingType(param.Type).Name);
         }

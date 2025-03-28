@@ -1,12 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    </PropertyGroup>
-  
-    <PropertyGroup>
+  </PropertyGroup>
+  <PropertyGroup>
     <Authors>kumja1</Authors>
     <Description>C# port of dart/flutter library Envied</Description>
-    <Version>1.0.6</Version> 
+    <Version>1.0.6</Version>
     <PackageId>Envied.NET</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>envied;configuration;environment</PackageTags>
