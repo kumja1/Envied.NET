@@ -1,14 +1,15 @@
 using Envied;
 
-
 namespace dotnet8_and_older;
 
 [Envied(path: ".env")]
 public static class ExampleClass
 {
-    [EnviedField] public static string EXAMPLE_FIELD => ExampleClass_Generated.EXAMPLE_FIELD;
+    [EnviedField]
+    public static string EXAMPLE_FIELD => ExampleClass_Generated.EXAMPLE_FIELD;
 
-    [EnviedField(optional: true)] public static string OPTIONAL_FIELD => ExampleClass_Generated.OPTIONAL_FIELD;
+    [EnviedField(optional: true)]
+    public static string OPTIONAL_FIELD => ExampleClass_Generated.OPTIONAL_FIELD;
 
     [EnviedField(useConstantCase: true)]
     public static string CONSTANT_CASE_FIELD => ExampleClass_Generated.CONSTANT_CASE_FIELD;
@@ -28,7 +29,7 @@ public static class ExampleClass
     [EnviedField(defaultValue: true)]
     public static bool DEFAULT_VALUE_FIELD => ExampleClass_Generated.DEFAULT_VALUE_FIELD;
 
-    [EnviedField(rawString: true, obfuscate:true)]
+    [EnviedField(rawString: true, obfuscate: true)]
     public static string RAW_STRING_FIELD => ExampleClass_Generated.RAW_STRING_FIELD;
 
     [EnviedField(interpolate: true)]
@@ -39,14 +40,13 @@ public enum MyEnum
 {
     Value1,
     Value2,
-    Value3
+    Value3,
 }
 
 public static class Program
 {
     static void Main()
     {
-        
         Console.WriteLine(ExampleClass.EXAMPLE_FIELD); // Should print "example_value"
         Console.WriteLine(ExampleClass.OPTIONAL_FIELD); // Should print empty string
         Console.WriteLine(ExampleClass.CONSTANT_CASE_FIELD); // Should print "constant_value"

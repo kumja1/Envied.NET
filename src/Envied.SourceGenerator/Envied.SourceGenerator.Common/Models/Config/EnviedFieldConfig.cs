@@ -1,7 +1,7 @@
-namespace Envied.SourceGenerator.Models.Config;
-
-using Envied.SourceGenerator.Extensions;
+using Envied.SourceGenerator.Common.Extensions;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+namespace Envied.SourceGenerator.Common.Models.Config;
 
 internal readonly record struct EnviedFieldConfig(
     string? Name,

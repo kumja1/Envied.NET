@@ -3,7 +3,7 @@
 namespace dotnet9_example;
 
 [Envied]
-internal static partial class ExampleClass
+public  static partial class ExampleClass
 {
     [EnviedField]
     public static partial string EXAMPLE_FIELD { get; }

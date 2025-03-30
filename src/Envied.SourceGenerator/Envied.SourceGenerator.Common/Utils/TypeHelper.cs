@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace Envied.SourceGenerator.Utils;
+namespace Envied.SourceGenerator.Common.Utils;
 
 internal static class TypeHelper
 {
@@ -63,9 +63,11 @@ internal static class TypeHelper
             .ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat);
         bool isValid = TypeParserCache.TryParse(underlyingType, value);
         if (!isValid)
+        {
             isValid =
                 value.Contains("RuntimeKeyHelper.Decrypt")
-                || type.TypeKind == TypeKind.Enum && type.GetMembers().Any(m => m.Name == value);
+                || (type.TypeKind == TypeKind.Enum && type.GetMembers().Any(m => m.Name == value));
+        }
 
         return isValid;
     }

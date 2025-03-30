@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <RootNamespace>Envied.SourceGenerator</RootNamespace>
     <IsRoslynComponent>true</IsRoslynComponent>
     <DebugSymbols>false</DebugSymbols>
     <Version>1.1.1</Version>
@@ -26,10 +27,12 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../Envied.Common/Envied.Common.csproj" PrivateAssets="all" />
+    <ProjectReference Include="../../Envied.Common/Envied.Common.csproj" PrivateAssets="all" />
+    <ProjectReference Include="../Envied.SourceGenerator.Common/Envied.SourceGenerator.Common.csproj" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="../Envied.Common/bin/$(Configuration)/netstandard2.0/Envied.Common.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="../../Envied.Common/bin/$(Configuration)/netstandard2.0/Envied.Common.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="../Envied.SourceGenerator.Common/bin/$(Configuration)/netstandard2.0/Envied.SourceGenerator.Common.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="$(OutputPath)/$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="$(PKGdotenv_net)/lib/netstandard1.6/*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="$(PKGMicrosoft_CodeAnalysis)/lib/netstandard2.0/*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />

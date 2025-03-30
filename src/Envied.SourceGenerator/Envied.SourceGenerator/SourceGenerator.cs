@@ -1,4 +1,5 @@
-﻿using Envied.SourceGenerator.Models.TypeInfo;
+﻿using Envied.SourceGenerator.Common.Utils;
+using Envied.SourceGenerator.Models.TypeInfo;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -10,7 +11,7 @@ internal partial class EnviedSourceGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var targetFrameworkProvider = context.AnalyzerConfigOptionsProvider.Select(
-            CheckSupportsPartial
+            ProjectHelper.CheckSupportsPartial
         );
 
         var syntaxProvider = context

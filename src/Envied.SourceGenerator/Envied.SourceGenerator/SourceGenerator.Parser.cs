@@ -1,14 +1,13 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using Envied.Common.Utils;
-using Envied.SourceGenerator.Models.Config;
+using Envied.SourceGenerator.Common.Models.Config;
+using Envied.SourceGenerator.Common.Utils;
 using Envied.SourceGenerator.Models.TypeInfo;
 using Envied.SourceGenerator.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
 using TypeInfo = Envied.SourceGenerator.Models.TypeInfo.TypeInfo;
 
 namespace Envied.SourceGenerator;
@@ -35,8 +34,6 @@ internal partial class EnviedSourceGenerator
     )
     {
         token.ThrowIfCancellationRequested();
-        var classInfo = ClassInfo.Empty;
-        var diagnostics = new List<DiagnosticInfo>();
 
         var attributeSyntax = classSyntax
             .AttributeLists.SelectMany(al => al.Attributes)
@@ -47,21 +44,18 @@ internal partial class EnviedSourceGenerator
             return ClassInfo.Empty;
 
         var config = EnviedConfig.From(attributeSyntax);
-
         token.ThrowIfCancellationRequested();
-        var env = LoadEnvironment(config, semanticModel, diagnostics, classSyntax.GetLocation());
+        var env = LoadEnvironment(config, semanticModel);
+
+        if (env == null)
+            return ClassInfo.Empty;
+        token.ThrowIfCancellationRequested();
 
         var properties = new List<PropertyInfo>();
         foreach (var property in classSyntax.Members.OfType<PropertyDeclarationSyntax>())
         {
             token.ThrowIfCancellationRequested();
-            var transformedProperty = TransformProperty(
-                property,
-                semanticModel,
-                config,
-                env,
-                diagnostics
-            );
+            var transformedProperty = TransformProperty(property, semanticModel, config, env);
             if (transformedProperty != null)
             {
                 properties.Add(transformedProperty.Value);
@@ -79,39 +73,22 @@ internal partial class EnviedSourceGenerator
 
     private static Dictionary<string, string>? LoadEnvironment(
         EnviedConfig config,
-        SemanticModel semanticModel,
-        List<DiagnosticInfo> diagnostics,
-        Location location
+        SemanticModel semanticModel
     )
     {
         var projectRoot = Path.GetDirectoryName(semanticModel.SyntaxTree.FilePath);
         if (string.IsNullOrEmpty(projectRoot))
-        {
-            diagnostics.Add(DiagnosticMessages.ProjectRootNotFound.WithLocation(location));
-            return [];
-        }
+            return null;
 
         var envPath = Path.Combine(projectRoot, config.Path);
-        var env = EnvHelper.LoadEnvironment(envPath);
-
-        if (!env && config.RequireEnvFile)
-        {
-            diagnostics.Add(
-                DiagnosticMessages
-                    .MissingEnvFile.WithMessageArgs(config.Path)
-                    .WithLocation(location)
-            );
-            return [];
-        }
-        return env!;
+        return EnviromentHelper.LoadEnvironment(envPath);
     }
 
     private static PropertyInfo? TransformProperty(
         PropertyDeclarationSyntax property,
         SemanticModel semanticModel,
         EnviedConfig config,
-        Dictionary<string, string> env,
-        List<DiagnosticInfo> diagnostics
+        Dictionary<string, string> env
     )
     {
         var propertySymbol = semanticModel.GetDeclaredSymbol(property);
@@ -146,27 +123,18 @@ internal partial class EnviedSourceGenerator
             config.Environment,
             fieldConfig.DefaultValue,
             namedType,
-            fieldConfig.Optional,
-            property,
-            diagnostics
+            fieldConfig.Optional
         );
 
         if (string.IsNullOrEmpty(value))
         {
-            // return new PropertyInfo
-            //  {
-            //      Name = fieldName,
-            //     Type = TypeInfo.From(namedType),
-            //     Value = "null",
-            //    Modifiers = modifiers,
-            // };
             return null;
         }
 
         if (property.Type is PredefinedTypeSyntax { Keyword.Text: "string" })
         {
             if (fieldConfig.Interpolate)
-                value = InterpolateValue(value, fieldConfig, env, property, diagnostics);
+                value = InterpolateValue(value, fieldConfig, env);
 
             if (fieldConfig is { RawString: true, Obfuscate: false })
                 value = EscapeString(value, fieldConfig.RawString);
@@ -201,9 +169,7 @@ internal partial class EnviedSourceGenerator
         bool environment,
         object? defaultValue,
         INamedTypeSymbol namedType,
-        bool optional,
-        PropertyDeclarationSyntax property,
-        List<DiagnosticInfo> diagnostics
+        bool optional
     )
     {
         if (!env.TryGetValue(envName, out string? value))
@@ -223,21 +189,11 @@ internal partial class EnviedSourceGenerator
             {
                 if (!optional)
                 {
-                    diagnostics.Add(
-                        DiagnosticMessages
-                            .MissingEnvironmentVariable.WithMessageArgs(envName)
-                            .WithLocation(property.GetLocation())
-                    );
                     return null;
                 }
 
                 if (namedType.IsValueType && namedType.Name != "Nullable")
                 {
-                    diagnostics.Add(
-                        DiagnosticMessages
-                            .OptionalValueTypesMustBeNullable.WithLocation(property.GetLocation())
-                            .WithMessageArgs(property.Identifier.Text, namedType.Name)
-                    );
                     return null;
                 }
             }
@@ -252,21 +208,13 @@ internal partial class EnviedSourceGenerator
 
         if (string.IsNullOrEmpty(value) || TypeHelper.IsValidTypeConversion(value, namedType))
             return value;
-
-        diagnostics.Add(
-            DiagnosticMessages
-                .InvalidTypeConversion.WithMessageArgs(value, namedType.ToDisplayString())
-                .WithLocation(property.GetLocation())
-        );
         return null;
     }
 
     private static string InterpolateValue(
         string value,
         EnviedFieldConfig config,
-        Dictionary<string, string> env,
-        PropertyDeclarationSyntax property,
-        List<DiagnosticInfo> diagnostics
+        Dictionary<string, string> env
     )
     {
         return InterpolationPattern.Replace(
@@ -280,11 +228,6 @@ internal partial class EnviedSourceGenerator
                 if (env.TryGetValue(envName, out var replacement) || config.Optional)
                     return replacement;
 
-                diagnostics.Add(
-                    DiagnosticMessages
-                        .MissingEnvironmentVariable.WithMessageArgs(envName)
-                        .WithLocation(property.GetLocation())
-                );
                 return match.Value;
             }
         );
@@ -293,6 +236,7 @@ internal partial class EnviedSourceGenerator
     private static string EscapeString(string value, bool rawString)
     {
         if (!rawString)
+        {
             return EscapeSequenceRegex.Replace(
                 value,
                 match =>
@@ -302,6 +246,7 @@ internal partial class EnviedSourceGenerator
                     return match.Value.Replace("\"", "\\\"");
                 }
             );
+        }
 
         int maxQuotes = QuoteRegex
             .Matches(value)
@@ -337,27 +282,6 @@ internal partial class EnviedSourceGenerator
         );
 
         Aes.Clear();
-        return Convert.ToBase64String(iv.Concat(encrypted).ToArray());
-    }
-
-    public static bool CheckSupportsPartial(
-        AnalyzerConfigOptionsProvider analyzerConfig,
-        CancellationToken token
-    )
-    {
-        token.ThrowIfCancellationRequested();
-        if (
-            !analyzerConfig.GlobalOptions.TryGetValue(
-                "build_property.TargetFramework",
-                out var targetFramework
-            )
-        )
-            return true;
-
-        string versionString = targetFramework.Replace("net", "").Replace("coreapp", "");
-
-        if (Version.TryParse(versionString, out var version))
-            return version.Major >= 9;
-        return true;
+        return Convert.ToBase64String([.. iv.Concat(encrypted)]);
     }
 }

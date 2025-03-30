@@ -2,6 +2,7 @@ using System.Buffers;
 using System.Text;
 using Envied.Common.Extensions;
 using Envied.Common.Utils;
+using Envied.SourceGenerator.Common.Utils;
 using Microsoft.CodeAnalysis;
 
 namespace Envied.SourceGenerator.Utils;

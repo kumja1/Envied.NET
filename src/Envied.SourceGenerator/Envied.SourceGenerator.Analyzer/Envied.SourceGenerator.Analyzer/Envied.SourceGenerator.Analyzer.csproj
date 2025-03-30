@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <RootNamespace>Envied.SourceGenerator.Analyzer</RootNamespace>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <TargetFramework>netstandard2.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <!-- Avoid ID conflicts with the package project. -->
     <PackageId>*$(MSBuildProjectFile)*</PackageId>
+    
   </PropertyGroup>
   <ItemGroup>
     <None Remove="AnalyzerReleases.Shipped.md" />
@@ -16,8 +17,13 @@
     </PackageReference>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
   </ItemGroup>
-
   <ItemGroup>
-  
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>Envied.SourceGenerator.Analyzer.CodeFixes</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../Envied.Common/Envied.Common.csproj" />
+    <ProjectReference Include="../../Envied.SourceGenerator.Common/Envied.SourceGenerator.Common.csproj" />
   </ItemGroup>
 </Project>

@@ -1,8 +1,8 @@
 using dotenv.net;
 
-namespace Envied.Common.Utils;
+namespace Envied.SourceGenerator.Common.Utils;
 
-public static class EnviromentHelper
+internal static class EnviromentHelper
 {
     public static Dictionary<string, string>? LoadEnvironment(string path)
     {

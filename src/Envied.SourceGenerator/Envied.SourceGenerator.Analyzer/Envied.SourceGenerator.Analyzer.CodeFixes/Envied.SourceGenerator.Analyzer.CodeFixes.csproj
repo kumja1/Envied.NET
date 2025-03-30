@@ -2,12 +2,12 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <RootNamespace>Envied.SourceGenerator.Analyzer</RootNamespace>
+    <RootNamespace>Envied.SourceGenerator.Analyzer.CodeFixes</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Envied.SourceGenerator.Analyzer\Envied.SourceGenerator.Analyzer.csproj" />
+    <ProjectReference Include="../Envied.SourceGenerator.Analyzer/Envied.SourceGenerator.Analyzer.csproj" />
   </ItemGroup>
 </Project>

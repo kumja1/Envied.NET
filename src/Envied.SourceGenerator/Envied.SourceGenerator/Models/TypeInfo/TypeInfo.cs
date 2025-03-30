@@ -1,6 +1,5 @@
-using Envied.SourceGenerator.Utils;
+using Envied.SourceGenerator.Common.Utils;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 
 namespace Envied.SourceGenerator.Models.TypeInfo;
 

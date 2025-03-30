@@ -1,7 +1,7 @@
-using Envied.SourceGenerator.Extensions;
+using Envied.SourceGenerator.Common.Extensions;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Envied.SourceGenerator.Models.Config;
+namespace Envied.SourceGenerator.Common.Models.Config;
 
 internal readonly record struct EnviedConfig(
     string Path,
