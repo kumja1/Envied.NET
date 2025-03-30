@@ -61,7 +61,7 @@ internal partial class EnviedSourceGenerator : IIncrementalGenerator
         if (classInfo == ClassInfo.Empty)
             return;
 
-        var source = GenerateSource(context, classInfo, supportsPartial);
+        var source = GenerateSource(classInfo, supportsPartial);
         context.AddSource($"{classInfo.Name}.g.cs", source);
     }
 }

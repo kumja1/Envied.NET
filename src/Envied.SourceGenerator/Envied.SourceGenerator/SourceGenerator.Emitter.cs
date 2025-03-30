@@ -8,7 +8,6 @@ namespace Envied.SourceGenerator;
 internal partial class EnviedSourceGenerator
 {
     private static string GenerateSource(
-        SourceProductionContext context,
         ClassInfo classInfo,
         bool supportsPartial
     )
@@ -37,7 +36,7 @@ internal partial class EnviedSourceGenerator
     {
         if (
             !classInfo.Modifiers.Contains("static")
-            && (supportsPartial && !classInfo.Modifiers.Contains("partial"))
+            && supportsPartial && !classInfo.Modifiers.Contains("partial")
         )
             return;
 
