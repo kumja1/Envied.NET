@@ -2,17 +2,25 @@
 using Envied.SourceGenerator.Models.TypeInfo;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SGF;
 
 namespace Envied.SourceGenerator;
 
-[Generator(LanguageNames.CSharp)]
-internal partial class EnviedSourceGenerator : IIncrementalGenerator
+[IncrementalGenerator]
+internal partial class EnviedSourceGenerator : IncrementalGenerator
 {
-    public void Initialize(IncrementalGeneratorInitializationContext context)
+    public EnviedSourceGenerator()
+        : base(nameof(EnviedSourceGenerator)) { }
+
+    public override void OnInitialize(SgfInitializationContext context)
     {
+        AttachDebugger();
+
         var targetFrameworkProvider = context.AnalyzerConfigOptionsProvider.Select(
             ProjectHelper.CheckSupportsPartial
         );
+
+        Logger.Log(SGF.Diagnostics.LogLevel.Debug, null, "EnviedSourceGenerator initialized");
 
         var syntaxProvider = context
             .SyntaxProvider.ForAttributeWithMetadataName(
@@ -31,12 +39,12 @@ internal partial class EnviedSourceGenerator : IIncrementalGenerator
     }
 
     private void SourceOutput(
-        SourceProductionContext context,
+        SgfSourceProductionContext context,
         (ClassInfo classInfo, bool isOlderProject) tuple
     )
     {
         var (classInfo, supportsPartial) = tuple;
-
+        
         if (!classInfo.Modifiers.Contains("static"))
         {
             // if (!isOlderProject && !classInfo.Modifiers.Contains("partial"))

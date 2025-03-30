@@ -4,7 +4,6 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Envied.SourceGenerator\Envied.SourceGenerator\Envied.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
