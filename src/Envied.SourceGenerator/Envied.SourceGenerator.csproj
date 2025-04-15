@@ -34,7 +34,7 @@
 
   <ItemGroup>
     <!-- Project references -->
-    <ProjectReference Include="../../Envied.Common/Envied.Common.csproj" PrivateAssets="all" />
+    <ProjectReference Include="../Envied.Common/Envied.Common.csproj" PrivateAssets="all" />
     <ProjectReference Include="../Envied.SourceGenerator.Common/Envied.SourceGenerator.Common.csproj" PrivateAssets="all" />
   </ItemGroup>
 
@@ -49,12 +49,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <SGF_EmbeddedAssembly Include="../../Envied.Common/bin/$(Configuration)/netstandard2.0/*.dll" />
+    <SGF_EmbeddedAssembly Include="../Envied.Common/bin/$(Configuration)/netstandard2.0/*.dll" />
     <SGF_EmbeddedAssembly Include="../Envied.SourceGenerator.Common/bin/$(Configuration)/netstandard2.0/*.dll" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="../../Envied.Common/bin/$(Configuration)/netstandard2.0/Envied.Common.dll"
+    <None Include="../Envied.Common/bin/$(Configuration)/netstandard2.0/Envied.Common.dll"
           Pack="true"
           PackagePath="analyzers/dotnet/cs"
           Visible="false" />

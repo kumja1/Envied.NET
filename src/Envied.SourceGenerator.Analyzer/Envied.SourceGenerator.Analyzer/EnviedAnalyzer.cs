@@ -90,6 +90,7 @@ public class EnviedAnalyzer : DiagnosticAnalyzer
                 DiagnosticMessages.EnvFileNotFound,
                 classAttribute.GetLocation()
             );
+            return;
         }
 
         foreach (var member in classDecl.Members)
@@ -106,7 +107,6 @@ public class EnviedAnalyzer : DiagnosticAnalyzer
 
             AnalyzeMember(
                 context,
-                classAttribute,
                 config,
                 property,
                 propertyAttribute,
@@ -118,7 +118,6 @@ public class EnviedAnalyzer : DiagnosticAnalyzer
 
     private static void AnalyzeMember(
         SyntaxNodeAnalysisContext context,
-        AttributeSyntax classAttribute,
         EnviedConfig config,
         PropertyDeclarationSyntax property,
         AttributeSyntax propertyAttribute,
@@ -150,11 +149,14 @@ public class EnviedAnalyzer : DiagnosticAnalyzer
             return;
 
         var propertyConfig = EnviedFieldConfig.From(propertyAttribute, config);
+        if (propertyConfig == null)
+           return;
+
         var envName = property.Identifier.Text;
         if (propertyConfig.UseConstantCase)
             envName = envName.ToUpper();
 
-        if (env?.ContainsKey(envName) == false && !propertyConfig.Optional)
+        if (env?.ContainsKey(envName) == false && !propertyConfig.Optional && propertyConfig.DefaultValue == null)
         {
             ReportDiagnostic(
                 context,
@@ -164,7 +166,7 @@ public class EnviedAnalyzer : DiagnosticAnalyzer
             );
             return;
         }
-
+        
         var typeInfo = context.SemanticModel.GetTypeInfo(property.Type);
         if (
             propertySymbol.Type.IsValueType
@@ -180,7 +182,8 @@ public class EnviedAnalyzer : DiagnosticAnalyzer
             return;
         }
 
-        string? value = env?[envName];
+        string value = string.Empty;
+        _ = env?.TryGetValue(envName, out value);
         if (!TypeHelper.IsValidTypeConversion(value, propertySymbol.Type))
         {
             ReportDiagnostic(
@@ -207,6 +210,7 @@ public class EnviedAnalyzer : DiagnosticAnalyzer
                         property.GetLocation(),
                         interpolateEnvVar
                     );
+                    return;
                 }
             }
         }

@@ -23,7 +23,7 @@
     </AssemblyAttribute>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../../Envied.Common/Envied.Common.csproj" />
+    <ProjectReference Include="../../Envied.Common/Envied.Common.csproj" />
     <ProjectReference Include="../../Envied.SourceGenerator.Common/Envied.SourceGenerator.Common.csproj" />
   </ItemGroup>
 </Project>

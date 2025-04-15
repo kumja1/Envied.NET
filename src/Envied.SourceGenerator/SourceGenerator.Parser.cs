@@ -126,10 +126,8 @@ internal partial class EnviedSourceGenerator
             fieldConfig.Optional
         );
 
-        if (string.IsNullOrEmpty(value))
-        {
+        if (value == null)
             return null;
-        }
 
         if (property.Type is PredefinedTypeSyntax { Keyword.Text: "string" })
         {
@@ -153,9 +151,7 @@ internal partial class EnviedSourceGenerator
             Name = fieldName,
             Type = TypeInfo.From(namedType),
             Value = TypeHelper.GetConversionExpression(
-                fieldConfig.Obfuscate
-                    ? $"RuntimeKeyHelper.Decrypt(\"{fieldValue}\", _key)"
-                    : $"\"{fieldValue}\"",
+                $"\"{fieldValue}\"",
                 namedType
             ),
             Modifiers = modifiers,
@@ -187,15 +183,12 @@ internal partial class EnviedSourceGenerator
 
             if (string.IsNullOrEmpty(value))
             {
-                if (!optional)
-                {
+                Console.WriteLine(
+                    $"Warning: Environment variable '{envName}' not found. Default value: '{defaultValue}'."
+                );
+                if (!optional || namedType.IsValueType && namedType.Name != "Nullable")
                     return null;
-                }
-
-                if (namedType.IsValueType && namedType.Name != "Nullable")
-                {
-                    return null;
-                }
+                value = string.Empty;
             }
         }
 
@@ -208,6 +201,7 @@ internal partial class EnviedSourceGenerator
 
         if (string.IsNullOrEmpty(value) || TypeHelper.IsValidTypeConversion(value, namedType))
             return value;
+
         return null;
     }
 

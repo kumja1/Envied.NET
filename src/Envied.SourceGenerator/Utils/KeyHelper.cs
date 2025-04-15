@@ -28,6 +28,7 @@ internal static class KeyHelper
                 throw new InvalidOperationException(
                     "Cached hash count does not match the number of types."
                 );
+                
             return HashHelper.CombineHashes(
                 assembly.Name,
                 assembly.Identity.Version.ToString(),

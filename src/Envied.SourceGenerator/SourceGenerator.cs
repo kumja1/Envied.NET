@@ -20,8 +20,6 @@ internal partial class EnviedSourceGenerator : IncrementalGenerator
             ProjectHelper.CheckSupportsPartial
         );
 
-        Logger.Log(SGF.Diagnostics.LogLevel.Debug, null, "EnviedSourceGenerator initialized");
-
         var syntaxProvider = context
             .SyntaxProvider.ForAttributeWithMetadataName(
                 "Envied.EnviedAttribute",
@@ -44,19 +42,9 @@ internal partial class EnviedSourceGenerator : IncrementalGenerator
     )
     {
         var (classInfo, supportsPartial) = tuple;
-        
-        if (!classInfo.Modifiers.Contains("static"))
-        {
-            // if (!isOlderProject && !classInfo.Modifiers.Contains("partial"))
-            //    context.ReportDiagnostic(
-            //        DiagnosticMessages
-            //            .ClassMustBePartial.WithLocation(classInfo.Location)
-            //            .ToDiagnostic()
-            //   );
-            // context.ReportDiagnostic(
-            //     DiagnosticMessages.ClassMustBeStatic.WithLocation(classInfo.Location).ToDiagnostic()
-            // );
-        }
+
+        if (!classInfo.Modifiers.Contains("static") || (supportsPartial && !classInfo.Modifiers.Contains("partial")))
+            return;
 
         //  if (classInfo.Diagnostics.Length > 0)
         //  {
